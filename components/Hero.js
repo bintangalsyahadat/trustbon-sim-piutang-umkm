@@ -26,16 +26,12 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
       id="hero"
       className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden"
     >
-      {/* Background ambient lighting in violet palette (NOT blue) */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-violet-400/20 to-purple-600/15 dark:from-purple-900/30 dark:to-violet-700/20 rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="absolute top-20 right-10 w-72 h-72 bg-purple-300/20 dark:bg-purple-600/10 rounded-full blur-2xl pointer-events-none -z-10" />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Column: Copywriting & CTA */}
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
             {/* Tagline Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-200 dark:border-purple-800/80 bg-violet-50/80 dark:bg-purple-950/60 text-violet-700 dark:text-violet-300 text-xs font-semibold backdrop-blur-sm shadow-sm">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-200 dark:border-violet-500/20 bg-violet-50/80 dark:bg-violet-500/10 text-violet-700 dark:text-violet-300 text-xs font-semibold backdrop-blur-sm shadow-sm">
               <Sparkles className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" />
               <span>Sistem Manajemen Piutang Multi-Tenant UMKM</span>
             </div>
@@ -43,7 +39,7 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
             {/* Main Headline */}
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#181126] dark:text-white leading-[1.18]">
               Catat Kasbon Lebih Tenang.{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 dark:from-violet-400 dark:via-purple-400 dark:to-indigo-300">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-purple-600 dark:from-violet-400 dark:to-purple-300">
                 Lindungi Modal UMKM
               </span>{" "}
               dengan Skor Risiko Kredit.
@@ -64,7 +60,7 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
                 id="hero-cta-daftar"
                 type="button"
                 onClick={() => onOpenRegister && onOpenRegister()}
-                className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold text-base shadow-lg shadow-violet-600/30 hover:shadow-violet-600/45 transition-all flex items-center justify-center gap-2 hover:translate-y-[-1px] active:translate-y-0"
+                className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-violet-500 hover:bg-violet-600 text-white font-semibold text-base shadow-lg shadow-violet-500/30 hover:shadow-violet-500/45 dark:shadow-black/30 dark:hover:shadow-black/40 transition-all flex items-center justify-center gap-2 hover:translate-y-[-1px] active:translate-y-0"
               >
                 <span>Daftar Gratis Sekarang</span>
                 <ArrowRight className="w-4 h-4" />
@@ -74,17 +70,17 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
                 id="hero-cta-masuk"
                 type="button"
                 onClick={() => onOpenLogin && onOpenLogin()}
-                className="w-full sm:w-auto px-7 py-3.5 rounded-xl border border-violet-200 dark:border-purple-800 bg-white/70 dark:bg-purple-950/40 text-violet-900 dark:text-violet-200 font-semibold text-base hover:bg-violet-50 dark:hover:bg-purple-900/60 transition-colors flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-7 py-3.5 rounded-xl border border-violet-200 dark:border-violet-500/20 bg-white/70 dark:bg-white/5 text-violet-900 dark:text-violet-200 font-semibold text-base hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-colors flex items-center justify-center gap-2"
               >
                 <span>Masuk ke Akun</span>
               </button>
             </div>
 
             {/* Trust points */}
-            <div className="pt-4 border-t border-violet-100/80 dark:border-purple-900/40 grid grid-cols-3 gap-3 text-left">
+            <div className="pt-4 border-t border-violet-100/80 dark:border-white/10 grid grid-cols-3 gap-3 text-left">
               <div className="space-y-0.5">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-violet-700 dark:text-violet-300">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
                   <span>Rule-Based Skoring</span>
                 </div>
                 <p className="text-[11px] text-gray-500 dark:text-gray-400">
@@ -104,7 +100,7 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
 
               <div className="space-y-0.5">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-violet-700 dark:text-violet-300">
-                  <MessageSquare className="w-3.5 h-3.5 text-emerald-500" />
+                  <MessageSquare className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
                   <span>WhatsApp Reminder</span>
                 </div>
                 <p className="text-[11px] text-gray-500 dark:text-gray-400">
@@ -117,24 +113,21 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
           {/* Right Column: Interactive Glassmorphism Hero Showcase */}
           <div className="lg:col-span-5">
             <div className="relative">
-              {/* Outer decorative ring */}
-              <div className="absolute -inset-1.5 bg-gradient-to-r from-violet-600/30 to-purple-600/30 rounded-2xl blur-lg -z-10 opacity-70"></div>
-
               {/* Main Glass Card */}
               <div
                 id="hero-interactive-card"
-                className="glass-card rounded-2xl p-5 shadow-2xl border border-white/50 dark:border-purple-800/40 relative overflow-hidden"
+                className="glass-card rounded-2xl p-5 shadow-xl border border-white/20 dark:border-white/10 relative overflow-hidden"
               >
                 {/* Header of Simulated App */}
-                <div className="flex items-center justify-between pb-3 mb-4 border-b border-gray-200/60 dark:border-purple-900/50">
+                <div className="flex items-center justify-between pb-3 mb-4 border-b border-gray-200/60 dark:border-white/10">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-violet-600 text-white flex items-center justify-center font-bold text-xs">
+                    <div className="w-8 h-8 rounded-lg bg-violet-500 text-white flex items-center justify-center font-bold text-xs">
                       TB
                     </div>
                     <div>
                       <h2 className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
                         Warung Sembako Barokah
-                        <span className="text-[10px] px-1.5 py-0.2 bg-violet-100 dark:bg-purple-900/60 text-violet-700 dark:text-violet-300 rounded font-medium">
+                        <span className="text-[10px] px-1.5 py-0.2 bg-violet-100 dark:bg-violet-500/15 text-violet-700 dark:text-violet-300 rounded font-medium">
                           Owner
                         </span>
                       </h2>
@@ -145,13 +138,13 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
                   </div>
 
                   {/* Interactive toggle view */}
-                  <div className="flex items-center gap-1 p-0.5 rounded-lg bg-gray-100 dark:bg-purple-950/60 text-[10px]">
+                  <div className="flex items-center gap-1 p-0.5 rounded-lg bg-gray-100 dark:bg-white/5 text-[10px]">
                     <button
                       type="button"
                       onClick={() => setActiveTab("transaksi")}
                       className={`px-2 py-1 rounded-md font-medium transition-colors ${
                         activeTab === "transaksi"
-                          ? "bg-white dark:bg-purple-900 text-violet-700 dark:text-violet-200 shadow-xs"
+                          ? "bg-white dark:bg-violet-500/20 text-violet-700 dark:text-violet-200 shadow-xs"
                           : "text-gray-500 hover:text-gray-800 dark:hover:text-gray-300"
                       }`}
                     >
@@ -162,7 +155,7 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
                       onClick={() => setActiveTab("pelanggan")}
                       className={`px-2 py-1 rounded-md font-medium transition-colors ${
                         activeTab === "pelanggan"
-                          ? "bg-white dark:bg-purple-900 text-violet-700 dark:text-violet-200 shadow-xs"
+                          ? "bg-white dark:bg-violet-500/20 text-violet-700 dark:text-violet-200 shadow-xs"
                           : "text-gray-500 hover:text-gray-800 dark:hover:text-gray-300"
                       }`}
                     >
@@ -173,7 +166,7 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
                       onClick={() => setActiveTab("whatsapp")}
                       className={`px-2 py-1 rounded-md font-medium transition-colors ${
                         activeTab === "whatsapp"
-                          ? "bg-white dark:bg-purple-900 text-violet-700 dark:text-violet-200 shadow-xs"
+                          ? "bg-white dark:bg-violet-500/20 text-violet-700 dark:text-violet-200 shadow-xs"
                           : "text-gray-500 hover:text-gray-800 dark:hover:text-gray-300"
                       }`}
                     >
@@ -185,7 +178,7 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
                 {/* TAB 1: Transaksi Lifecycle & Approval Over-Limit */}
                 {activeTab === "transaksi" && (
                   <div className="space-y-3.5 animate-fadeIn">
-                    <div className="p-3 rounded-xl bg-violet-50/70 dark:bg-purple-950/50 border border-violet-200/70 dark:border-purple-800/40">
+                    <div className="p-3 rounded-xl bg-violet-50/70 dark:bg-violet-500/10 border border-violet-200/70 dark:border-violet-500/20">
                       <div className="flex items-start justify-between">
                         <div>
                           <p className="text-[11px] font-semibold text-violet-950 dark:text-violet-200">
@@ -195,14 +188,14 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
                             Kasbon melebihi limit kredit pelanggan
                           </p>
                         </div>
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-700">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/25">
                           <AlertTriangle className="w-3 h-3" />
                           Over-Limit
                         </span>
                       </div>
                     </div>
 
-                    <div className="p-3.5 rounded-xl border border-gray-200 dark:border-purple-900/60 bg-white/80 dark:bg-purple-950/30 space-y-2.5">
+                    <div className="p-3.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/5 space-y-2.5">
                       <div className="flex justify-between items-center text-xs">
                         <span className="font-semibold text-gray-800 dark:text-gray-200">
                           Pak Herman (Warung Kopi)
@@ -211,11 +204,11 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
                       </div>
 
                       <div className="grid grid-cols-2 gap-2 text-[11px]">
-                        <div className="p-2 rounded-lg bg-gray-50 dark:bg-purple-950/60">
+                        <div className="p-2 rounded-lg bg-gray-50 dark:bg-white/5">
                           <span className="text-gray-500 text-[10px] block">Nominal Transaksi:</span>
                           <span className="font-bold text-gray-900 dark:text-white">Rp 350.000</span>
                         </div>
-                        <div className="p-2 rounded-lg bg-gray-50 dark:bg-purple-950/60">
+                        <div className="p-2 rounded-lg bg-gray-50 dark:bg-white/5">
                           <span className="text-gray-500 text-[10px] block">Limit Kredit:</span>
                           <span className="font-medium text-gray-700 dark:text-gray-300">Rp 1.000.000</span>
                         </div>
@@ -237,14 +230,14 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
 
                       <div className="flex items-center justify-between text-[11px]">
                         <span className="text-gray-500 text-[10px]">Progres Pelunasan (status):</span>
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-100 text-rose-800 dark:bg-rose-500/15 dark:text-rose-300 border border-rose-200 dark:border-rose-500/25">
                           unpaid
                         </span>
                       </div>
 
                       <div className="pt-2">
                         {isApproved ? (
-                          <div className="w-full py-2 px-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-center text-xs font-semibold flex items-center justify-center gap-1.5">
+                          <div className="w-full py-2 px-3 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/25 text-emerald-800 dark:text-emerald-300 text-center text-xs font-semibold flex items-center justify-center gap-1.5">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                             Transaksi Dikonfirmasi oleh Owner!
                           </div>
@@ -252,7 +245,7 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
                           <button
                             type="button"
                             onClick={() => setIsApproved(true)}
-                            className="w-full py-2 px-3 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold shadow-sm transition-all flex items-center justify-center gap-1.5"
+                            className="w-full py-2 px-3 rounded-lg bg-violet-500 hover:bg-violet-600 text-white text-xs font-semibold shadow-sm transition-all flex items-center justify-center gap-1.5"
                           >
                             <UserCheck className="w-3.5 h-3.5" />
                             Setujui Transaksi (Approve sebagai Owner)
@@ -266,7 +259,7 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
                 {/* TAB 2: Profil Pelanggan & Skoring Risiko Rule-Based */}
                 {activeTab === "pelanggan" && (
                   <div className="space-y-3 animate-fadeIn">
-                    <div className="p-3.5 rounded-xl border border-gray-200 dark:border-purple-900/60 bg-white/80 dark:bg-purple-950/30 space-y-3">
+                    <div className="p-3.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/5 space-y-3">
                       <div className="flex items-center justify-between">
                         <div>
                           <h4 className="text-xs font-bold text-gray-900 dark:text-white">
@@ -275,7 +268,7 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
                           <p className="text-[10px] text-gray-500">0812-9876-5432</p>
                         </div>
                         {/* Semantic badge standard: Green for stable */}
-                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-800">
+                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25">
                           stable
                         </span>
                       </div>
@@ -294,7 +287,7 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
                               Sangat Terpercaya
                             </span>
                           </div>
-                          <div className="w-full bg-gray-200 dark:bg-purple-950 rounded-full h-1.5 overflow-hidden">
+                          <div className="w-full bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
                             <div
                               className="bg-emerald-500 h-1.5 rounded-full"
                               style={{ width: "88%" }}
@@ -307,18 +300,18 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
                       </div>
 
                       <div className="grid grid-cols-2 gap-2 text-[11px] pt-1">
-                        <div className="p-2 rounded-lg bg-gray-50 dark:bg-purple-950/60">
+                        <div className="p-2 rounded-lg bg-gray-50 dark:bg-white/5">
                           <span className="text-[10px] text-gray-500 block">Batas Kredit:</span>
                           <span className="font-bold text-gray-900 dark:text-white">Rp 2.000.000</span>
                         </div>
-                        <div className="p-2 rounded-lg bg-gray-50 dark:bg-purple-950/60">
+                        <div className="p-2 rounded-lg bg-gray-50 dark:bg-white/5">
                           <span className="text-[10px] text-gray-500 block">Sisa Limit:</span>
                           <span className="font-semibold text-emerald-600 dark:text-emerald-400">Rp 1.450.000</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-violet-50 dark:bg-purple-950/40 border border-violet-200/60 dark:border-purple-900/40 text-[10px] text-violet-900 dark:text-violet-300">
+                    <div className="p-2.5 rounded-lg bg-violet-50 dark:bg-violet-500/10 border border-violet-200/60 dark:border-violet-500/20 text-[10px] text-violet-900 dark:text-violet-300">
                       💡 <strong>Rekomendasi TrustBon:</strong> Pelanggan berkategori <em>stable</em> berhak mendapatkan kenaikan limit kredit hingga Rp 3.000.000.
                     </div>
                   </div>
@@ -327,7 +320,7 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
                 {/* TAB 3: WhatsApp Reminder Automations */}
                 {activeTab === "whatsapp" && (
                   <div className="space-y-3 animate-fadeIn">
-                    <div className="p-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40">
+                    <div className="p-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-semibold text-emerald-950 dark:text-emerald-200 flex items-center gap-1">
                           <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
@@ -340,7 +333,7 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
                     </div>
 
                     {/* Simulated Chat Bubble */}
-                    <div className="p-3 rounded-xl bg-emerald-100/40 dark:bg-emerald-950/40 border border-emerald-300/60 dark:border-emerald-800/40 text-[11px] text-gray-800 dark:text-gray-200 space-y-1.5 font-sans leading-relaxed">
+                    <div className="p-3 rounded-xl bg-emerald-100/40 dark:bg-emerald-500/10 border border-emerald-300/60 dark:border-emerald-500/20 text-[11px] text-gray-800 dark:text-gray-200 space-y-1.5 font-sans leading-relaxed">
                       <p className="font-semibold text-gray-900 dark:text-white">
                         Halo Pak Herman yang baik 🙏
                       </p>
@@ -354,13 +347,13 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
 
                     <div className="text-[10px] text-gray-500 dark:text-gray-400 flex items-center justify-between px-1">
                       <span>Kanal: <strong>WhatsApp Business</strong></span>
-                      <span className="text-emerald-600 font-semibold">Terkirim Otomatis H-2</span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Terkirim Otomatis H-2</span>
                     </div>
                   </div>
                 )}
 
                 {/* Quick Interactive Switch Bar */}
-                <div className="mt-4 pt-3 border-t border-gray-200/60 dark:border-purple-900/50 flex items-center justify-between text-[11px]">
+                <div className="mt-4 pt-3 border-t border-gray-200/60 dark:border-white/10 flex items-center justify-between text-[11px]">
                   <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1">
                     <TrendingUp className="w-3 h-3 text-violet-600 dark:text-violet-400" />
                     Multi-Tenant Ready

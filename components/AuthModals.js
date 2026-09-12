@@ -54,7 +54,7 @@ export function AuthModals({
         >
           <div
             id="modal-login"
-            className="glass-panel w-full max-w-md rounded-2xl p-6 sm:p-8 shadow-2xl border border-white/60 dark:border-purple-800/50 bg-white/90 dark:bg-[#150d26]/90 relative"
+            className="glass-panel w-full max-w-md rounded-2xl p-6 sm:p-8 shadow-2xl border border-white/60 dark:border-white/20 relative"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
@@ -62,13 +62,13 @@ export function AuthModals({
               id="btn-close-login"
               type="button"
               onClick={onCloseLogin}
-              className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-purple-900/50 transition-colors"
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-violet-600 text-white flex items-center justify-center font-bold">
+              <div className="w-9 h-9 rounded-xl bg-violet-500 text-white flex items-center justify-center font-bold">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
@@ -82,7 +82,7 @@ export function AuthModals({
             </div>
 
             {/* Role Switcher: Owner vs Kasir */}
-            <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-violet-50 dark:bg-purple-950/60 border border-violet-100 dark:border-purple-900/40 mb-5">
+            <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-violet-50 dark:bg-white/5 border border-violet-100 dark:border-white/10 mb-5">
               <button
                 type="button"
                 onClick={() => {
@@ -91,7 +91,7 @@ export function AuthModals({
                 }}
                 className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
                   loginRole === "owner"
-                    ? "bg-white dark:bg-purple-900 text-violet-700 dark:text-violet-200 shadow-xs"
+                    ? "bg-white dark:bg-violet-500/20 text-violet-700 dark:text-violet-200 shadow-xs"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-800"
                 }`}
               >
@@ -106,7 +106,7 @@ export function AuthModals({
                 }}
                 className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
                   loginRole === "cashier"
-                    ? "bg-white dark:bg-purple-900 text-violet-700 dark:text-violet-200 shadow-xs"
+                    ? "bg-white dark:bg-violet-500/20 text-violet-700 dark:text-violet-200 shadow-xs"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-800"
                 }`}
               >
@@ -117,7 +117,7 @@ export function AuthModals({
 
             {loginSubmitted ? (
               <div className="text-center py-6 space-y-3">
-                <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
+                <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
                 <h4 className="text-base font-bold text-gray-900 dark:text-white">
@@ -129,7 +129,7 @@ export function AuthModals({
                 <button
                   type="button"
                   onClick={onCloseLogin}
-                  className="mt-2 px-5 py-2 text-xs font-semibold rounded-lg bg-violet-600 text-white shadow-sm hover:bg-violet-700"
+                  className="mt-2 px-5 py-2 text-xs font-semibold rounded-lg bg-violet-500 text-white shadow-sm hover:bg-violet-600"
                 >
                   Tutup Preview
                 </button>
@@ -149,7 +149,7 @@ export function AuthModals({
                         placeholder="Contoh: BRK-7712"
                         value={inviteCodeInput}
                         onChange={(e) => setInviteCodeInput(e.target.value.toUpperCase())}
-                        className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 dark:border-purple-800 bg-white dark:bg-purple-950/40 text-gray-900 dark:text-white uppercase font-mono tracking-wider focus:outline-none focus:border-violet-500"
+                        className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 dark:border-violet-500/20 bg-white dark:bg-white/5 text-gray-900 dark:text-white uppercase font-mono tracking-wider focus:outline-none focus:border-violet-500"
                       />
                     </div>
                   </div>
@@ -167,7 +167,7 @@ export function AuthModals({
                       placeholder="nama@tokoanda.com"
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 dark:border-purple-800 bg-white dark:bg-purple-950/40 text-gray-900 dark:text-white focus:outline-none focus:border-violet-500"
+                      className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 dark:border-violet-500/20 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:outline-none focus:border-violet-500"
                     />
                   </div>
                 </div>
@@ -184,14 +184,14 @@ export function AuthModals({
                       placeholder="••••••••"
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 dark:border-purple-800 bg-white dark:bg-purple-950/40 text-gray-900 dark:text-white focus:outline-none focus:border-violet-500"
+                      className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 dark:border-violet-500/20 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:outline-none focus:border-violet-500"
                     />
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-semibold text-xs shadow-md shadow-violet-600/30 transition-all mt-4 flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 rounded-lg bg-violet-500 hover:bg-violet-600 text-white font-semibold text-xs shadow-md shadow-violet-500/30 dark:shadow-black/30 transition-all mt-4 flex items-center justify-center gap-1.5"
                 >
                   <span>Masuk sebagai {loginRole === "owner" ? "Owner" : "Kasir"}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -225,20 +225,20 @@ export function AuthModals({
         >
           <div
             id="modal-register"
-            className="glass-panel w-full max-w-lg rounded-2xl p-6 sm:p-8 shadow-2xl border border-white/60 dark:border-purple-800/50 bg-white/90 dark:bg-[#150d26]/90 relative max-h-[90vh] overflow-y-auto"
+            className="glass-panel w-full max-w-lg rounded-2xl p-6 sm:p-8 shadow-2xl border border-white/60 dark:border-white/20 relative max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               id="btn-close-register"
               type="button"
               onClick={onCloseRegister}
-              className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-purple-900/50 transition-colors"
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-violet-600 text-white flex items-center justify-center font-bold">
+              <div className="w-9 h-9 rounded-xl bg-violet-500 text-white flex items-center justify-center font-bold">
                 <Building2 className="w-5 h-5" />
               </div>
               <div>
@@ -253,7 +253,7 @@ export function AuthModals({
 
             {registerSuccess ? (
               <div className="text-center py-5 space-y-4">
-                <div className="w-14 h-14 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-sm">
+                <div className="w-14 h-14 rounded-full bg-emerald-100 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-sm">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
                 <div className="space-y-1">
@@ -265,7 +265,7 @@ export function AuthModals({
                   </p>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-violet-50 dark:bg-purple-950/60 border border-violet-200 dark:border-purple-800 inline-block">
+                <div className="p-3.5 rounded-xl bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20 inline-block">
                   <span className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold block">
                     Kode Invite Kasir Toko:
                   </span>
@@ -281,7 +281,7 @@ export function AuthModals({
                 <button
                   type="button"
                   onClick={onCloseRegister}
-                  className="px-6 py-2.5 rounded-lg bg-violet-600 text-white font-semibold text-xs shadow-md shadow-violet-600/30 hover:bg-violet-700 transition-all"
+                  className="px-6 py-2.5 rounded-lg bg-violet-500 text-white font-semibold text-xs shadow-md shadow-violet-500/30 dark:shadow-black/30 hover:bg-violet-600 transition-all"
                 >
                   Selesai & Tutup
                 </button>
@@ -300,7 +300,7 @@ export function AuthModals({
                       placeholder="Contoh: Toko Sembako Makmur Jaya"
                       value={businessName}
                       onChange={(e) => setBusinessName(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 dark:border-purple-800 bg-white dark:bg-purple-950/40 text-gray-900 dark:text-white focus:outline-none focus:border-violet-500"
+                      className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 dark:border-violet-500/20 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:outline-none focus:border-violet-500"
                     />
                   </div>
                 </div>
@@ -318,7 +318,7 @@ export function AuthModals({
                         placeholder="Contoh: Budi Santoso"
                         value={ownerName}
                         onChange={(e) => setOwnerName(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 dark:border-purple-800 bg-white dark:bg-purple-950/40 text-gray-900 dark:text-white focus:outline-none focus:border-violet-500"
+                        className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 dark:border-violet-500/20 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:outline-none focus:border-violet-500"
                       />
                     </div>
                   </div>
@@ -335,7 +335,7 @@ export function AuthModals({
                         placeholder="08123456789"
                         value={ownerPhone}
                         onChange={(e) => setOwnerPhone(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 dark:border-purple-800 bg-white dark:bg-purple-950/40 text-gray-900 dark:text-white focus:outline-none focus:border-violet-500"
+                        className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 dark:border-violet-500/20 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:outline-none focus:border-violet-500"
                       />
                     </div>
                   </div>
@@ -354,7 +354,7 @@ export function AuthModals({
                         placeholder="owner@toko.com"
                         value={registerEmail}
                         onChange={(e) => setRegisterEmail(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 dark:border-purple-800 bg-white dark:bg-purple-950/40 text-gray-900 dark:text-white focus:outline-none focus:border-violet-500"
+                        className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 dark:border-violet-500/20 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:outline-none focus:border-violet-500"
                       />
                     </div>
                   </div>
@@ -371,7 +371,7 @@ export function AuthModals({
                         placeholder="Minimal 8 karakter"
                         value={registerPassword}
                         onChange={(e) => setRegisterPassword(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 dark:border-purple-800 bg-white dark:bg-purple-950/40 text-gray-900 dark:text-white focus:outline-none focus:border-violet-500"
+                        className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 dark:border-violet-500/20 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:outline-none focus:border-violet-500"
                       />
                     </div>
                   </div>
@@ -380,7 +380,7 @@ export function AuthModals({
                 <div className="pt-3">
                   <button
                     type="submit"
-                    className="w-full py-2.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-semibold text-xs shadow-md shadow-violet-600/30 transition-all flex items-center justify-center gap-1.5"
+                    className="w-full py-2.5 rounded-lg bg-violet-500 hover:bg-violet-600 text-white font-semibold text-xs shadow-md shadow-violet-500/30 dark:shadow-black/30 transition-all flex items-center justify-center gap-1.5"
                   >
                     <span>Daftarkan Bisnis & Buat Kode Kasir</span>
                     <ArrowRight className="w-3.5 h-3.5" />

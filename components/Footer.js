@@ -4,12 +4,12 @@ import { ShieldCheck, Heart } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="mt-auto border-t border-violet-100 dark:border-purple-900/40 bg-white/50 dark:bg-purple-950/20 backdrop-blur-sm py-12">
+    <footer className="mt-auto border-t border-white/20 dark:border-white/10 bg-white/40 dark:bg-[#1a1625]/40 backdrop-blur-lg py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-gray-100 dark:border-purple-900/40">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-gray-100 dark:border-white/10">
           {/* Brand Info */}
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-violet-600 flex items-center justify-center text-white shadow-sm shadow-violet-500/30">
+            <div className="w-9 h-9 rounded-xl bg-violet-500 flex items-center justify-center text-white shadow-sm shadow-violet-500/30 dark:shadow-black/20">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
@@ -36,7 +36,7 @@ export function Footer() {
             <a href="#cara-kerja" className="hover:text-violet-600 dark:hover:text-violet-400 transition-colors">
               Cara Kerja
             </a>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 text-[10px] font-semibold border border-emerald-300 dark:border-emerald-800">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300 text-[10px] font-semibold border border-emerald-300 dark:border-emerald-500/25">
               Sistem Aktif & Terlindungi
             </span>
           </div>

@@ -19,13 +19,13 @@ html {
 }
 
 .dark, html.dark, [data-theme="dark"], html[data-theme="dark"] {
-  --background: #0d0914;
+  --background: #1a1625;
   --foreground: #f3f0fa;
   color-scheme: dark;
 }
 
 html.dark, html[data-theme="dark"] {
-  background-color: #0d0914 !important;
+  background-color: #1a1625 !important;
   color: #f3f0fa !important;
 }
 
@@ -39,45 +39,61 @@ body {
 
 html.dark body,
 html[data-theme="dark"] body {
-  background-color: #0d0914 !important;
+  background-color: #1a1625 !important;
   color: #f3f0fa !important;
 }
 
-/* Fallback overrides when dark mode is active to ensure crisp contrast */
-html.dark .bg-white\/90,
-html.dark .bg-white\/95,
-html[data-theme="dark"] .bg-white\/90,
-html[data-theme="dark"] .bg-white\/95 {
-  background-color: rgba(21, 13, 37, 0.92) !important;
-}
-
-/* Glassmorphism custom utilities */
+/* Glassmorphism custom utilities — calm variant.
+   The page background is intentionally clean (no ambient gradients), so these
+   read as quiet, softly-defined surfaces: translucent fill + thin light rim.
+   Dark mode sits on #1a1625 (soft gray-purple, not near-black), so the dark
+   fills below use a softer neutral-purple that separates gently from it.
+   Note: these are unlayered author styles, so they take precedence over
+   Tailwind v4's layered utility classes at equal specificity — the glass
+   background and rim are controlled here, not via the border and background
+   utility classNames. */
 .glass-panel {
-  background-color: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  background-color: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
 .dark .glass-panel, html.dark .glass-panel, [data-theme="dark"] .glass-panel {
-  background-color: rgba(20, 11, 36, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(147, 51, 234, 0.28);
+  background-color: rgba(40, 34, 56, 0.65);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .glass-card {
-  background-color: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
 }
 
 .dark .glass-card, html.dark .glass-card, [data-theme="dark"] .glass-card {
-  background-color: rgba(24, 13, 44, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(168, 85, 247, 0.26);
+  background-color: rgba(40, 34, 56, 0.55);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Fade-in entrance animation (referenced by Hero tabs & AuthModals overlays) */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.35s ease-out both;
 }
 
 

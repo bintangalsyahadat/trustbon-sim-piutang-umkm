@@ -8,7 +8,7 @@ export function ProblemsSection() {
       id: "problem-blind-risk",
       icon: EyeOff,
       badge: "Buta Karakter",
-      badgeColor: "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/70 dark:text-rose-300 dark:border-rose-800",
+      badgeColor: "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/25",
       title: "Hanya Catat Angka, Buta Riwayat Bayar Pelanggan",
       description:
         "Buku kasbon biasa seperti BukuWarung atau BukuKas hanya mencatat 'siapa berutang berapa'. Anda tidak tahu apakah pelanggan tersebut punya riwayat selalu nunggak berbulan-bulan atau punya itikad baik sebelum menyetujui kasbon berikutnya.",
@@ -18,7 +18,7 @@ export function ProblemsSection() {
       id: "problem-awkward-collection",
       icon: AlertOctagon,
       badge: "Sungkan Menagih",
-      badgeColor: "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-800",
+      badgeColor: "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/25",
       title: "Rasa Sungkan Membuat Penagihan Sering Terlambat",
       description:
         "Menagih kasbon ke tetangga, teman, atau langganan sering menimbulkan rasa canggung. Karena enggan menagih langsung secara tatap muka, jatuh tempo terlewat hingga berbulan-bulan dan piutang berakhir jadi beban kerugian.",
@@ -28,7 +28,7 @@ export function ProblemsSection() {
       id: "problem-cashier-bypass",
       icon: UserX,
       badge: "Kasir Tanpa Limit",
-      badgeColor: "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/70 dark:text-rose-300 dark:border-rose-800",
+      badgeColor: "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/25",
       title: "Kasir Meloloskan Kasbon Tanpa Kontrol Pemilik Toko",
       description:
         "Saat kasir jaga toko, pelanggan sering meminta izin kasbon tambahan. Kasir yang sungkan atau tidak tahu aturan batas kredit sering meloloskannya begitu saja tanpa konfirmasi langsung kepada Owner.",
@@ -41,7 +41,7 @@ export function ProblemsSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-100 dark:bg-purple-950/70 border border-violet-200 dark:border-purple-800 text-violet-700 dark:text-violet-300 text-xs font-semibold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-100 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20 text-violet-700 dark:text-violet-300 text-xs font-semibold">
             <HelpCircle className="w-3.5 h-3.5" />
             <span>Masalah Nyata di Lapangan</span>
           </div>
@@ -66,7 +66,7 @@ export function ProblemsSection() {
                 <div>
                   {/* Top Bar with Semantic Badge */}
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-11 h-11 rounded-xl bg-violet-100 dark:bg-purple-900/50 text-violet-700 dark:text-violet-300 flex items-center justify-center font-bold">
+                    <div className="w-11 h-11 rounded-xl bg-violet-100 dark:bg-violet-500/15 text-violet-700 dark:text-violet-300 flex items-center justify-center font-bold">
                       <Icon className="w-5 h-5" />
                     </div>
                     <span
@@ -86,8 +86,8 @@ export function ProblemsSection() {
                 </div>
 
                 {/* Bottom Impact Box */}
-                <div className="pt-3 border-t border-gray-100 dark:border-purple-900/40">
-                  <div className="flex items-start gap-2 text-xs text-rose-800 dark:text-rose-300 bg-rose-50/60 dark:bg-rose-950/30 p-2.5 rounded-lg border border-rose-100 dark:border-rose-900/30">
+                <div className="pt-3 border-t border-gray-100 dark:border-white/10">
+                  <div className="flex items-start gap-2 text-xs text-rose-800 dark:text-rose-300 bg-rose-50/60 dark:bg-rose-500/10 p-2.5 rounded-lg border border-rose-100 dark:border-rose-500/20">
                     <span className="font-bold text-rose-600 dark:text-rose-400">Akibat:</span>
                     <span>{item.impact}</span>
                   </div>

@@ -38,7 +38,7 @@ export function HowItWorks({ onOpenRegister }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-100 dark:bg-purple-950/70 border border-violet-200 dark:border-purple-800 text-violet-700 dark:text-violet-300 text-xs font-semibold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-100 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20 text-violet-700 dark:text-violet-300 text-xs font-semibold">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Alur Praktis 3 Langkah</span>
           </div>
@@ -63,10 +63,10 @@ export function HowItWorks({ onOpenRegister }) {
                 <div>
                   {/* Step Number badge and Icon */}
                   <div className="flex items-center justify-between mb-6">
-                    <div className="w-12 h-12 rounded-xl bg-violet-600 text-white flex items-center justify-center font-bold shadow-md shadow-violet-500/20">
+                    <div className="w-12 h-12 rounded-xl bg-violet-500 text-white flex items-center justify-center font-bold shadow-md shadow-violet-500/20 dark:shadow-black/20">
                       <Icon className="w-6 h-6" />
                     </div>
-                    <span className="text-3xl font-black text-violet-200 dark:text-purple-900/80 select-none">
+                    <span className="text-3xl font-black text-violet-200 dark:text-violet-500/20 select-none">
                       {item.step}
                     </span>
                   </div>
@@ -85,10 +85,10 @@ export function HowItWorks({ onOpenRegister }) {
                 </div>
 
                 {/* Checklist bullets */}
-                <div className="pt-4 border-t border-gray-100 dark:border-purple-900/40 space-y-2">
+                <div className="pt-4 border-t border-gray-100 dark:border-white/10 space-y-2">
                   {item.details.map((detail, dIdx) => (
                     <div key={dIdx} className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                      <div className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
+                      <div className="w-4 h-4 rounded-full bg-emerald-100 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
                         <Check className="w-2.5 h-2.5" />
                       </div>
                       <span>{detail}</span>
@@ -101,7 +101,7 @@ export function HowItWorks({ onOpenRegister }) {
         </div>
 
         {/* Bottom CTA Banner with Glassmorphism */}
-        <div className="mt-14 glass-panel rounded-2xl p-8 text-center sm:flex sm:items-center sm:justify-between max-w-5xl mx-auto border border-violet-200/80 dark:border-purple-800/60 shadow-xl">
+        <div className="mt-14 glass-panel rounded-2xl p-8 text-center sm:flex sm:items-center sm:justify-between max-w-5xl mx-auto border border-violet-200/80 dark:border-white/10 shadow-lg">
           <div className="text-left mb-6 sm:mb-0 space-y-1">
             <h4 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
               Siap Mencegah Piutang Macet di Usaha Anda?
@@ -115,7 +115,7 @@ export function HowItWorks({ onOpenRegister }) {
             id="how-it-works-cta"
             type="button"
             onClick={() => onOpenRegister && onOpenRegister()}
-            className="px-6 py-3.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold text-sm shadow-md shadow-violet-600/30 transition-all flex items-center justify-center gap-2 mx-auto sm:mx-0"
+            className="px-6 py-3.5 rounded-xl bg-violet-500 hover:bg-violet-600 text-white font-semibold text-sm shadow-md shadow-violet-500/30 dark:shadow-black/30 transition-all flex items-center justify-center gap-2 mx-auto sm:mx-0"
           >
             <span>Daftar Bisnis Sekarang</span>
             <ArrowRight className="w-4 h-4" />
