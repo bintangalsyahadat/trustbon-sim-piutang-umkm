@@ -1,5 +1,5 @@
 {
-  "name": "Trustbon SIM Piutang UMKM",
+  "name": "TrustBon",
   "description": "Sistem Informasi Manajemen Piutang UMKM untuk pencatatan transaksi, penilaian risiko kredit, dan pengingat pembayaran",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
