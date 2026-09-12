@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── ENUMS ──────────────────────────────────────────────
+
+enum Role {
+  owner
+  cashier
+}
+
+enum TrustStatus {
+  stable
+  recovering
+  at_risk
+}
+
+enum TransactionType {
+  credit
+  adjustment
+}
+
+// Dipakai oleh TRANSACTIONS.payment_status dan PAYMENTS.status
+enum RecordStatus {
+  draft
+  confirmed
+  cancelled
+}
+
+// Dipakai oleh TRANSACTIONS.status (progres pelunasan)
+enum PaymentProgress {
+  unpaid
+  partial
+  paid
+}
+
+enum ReminderChannel {
+  whatsapp
+  sms
+}
+
+enum DeliveryStatus {
+  outgoing
+  sent
+  failed
+}
+
+// ── MODELS ─────────────────────────────────────────────
+
+model Business {
+  id                Int      @id @default(autoincrement())
+  name              String
+  ownerName         String
+  ownerPhoneNumber  String
+  inviteCode        String   @unique
+  createdAt         DateTime @default(now())
+
+  users             User[]
+  customers         Customer[]
+  transactions      Transaction[]
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  businessId  Int
+  business    Business @relation(fields: [businessId], references: [id])
+  name        String
+  email       String   @unique
+  password    String
+  role        Role
+  createdAt   DateTime @default(now())
+}
+
+model Customer {
+  id           Int         @id @default(autoincrement())
+  businessId   Int
+  business     Business    @relation(fields: [businessId], references: [id])
+  name         String
+  phoneNumber  String
+  creditLimit  Decimal
+  riskScore    Int         @default(50)
+  trustStatus  TrustStatus @default(recovering)
+  createdAt    DateTime    @default(now())
+
+  transactions Transaction[]
+  reminders    Reminder[]
+  scoreHistory ScoreHistory[]
+}
+
+model Transaction {
+  id              Int             @id @default(autoincrement())
+  businessId      Int
+  business        Business        @relation(fields: [businessId], references: [id])
+  customerId      Int
+  customer        Customer        @relation(fields: [customerId], references: [id])
+  transactionDate DateTime        @default(now())
+  type            TransactionType @default(credit)
+  amount          Decimal
+  dueDate         DateTime
+  paymentStatus   RecordStatus    @default(draft)
+  status          PaymentProgress @default(unpaid)
+
+  payments        Payment[]
+}
+
+model Payment {
+  id            Int          @id @default(autoincrement())
+  transactionId Int
+  transaction   Transaction  @relation(fields: [transactionId], references: [id])
+  paymentDate   DateTime     @default(now())
+  amountPaid    Decimal
+  status        RecordStatus @default(draft)
+}
+
+model Reminder {
+  id             Int             @id @default(autoincrement())
+  customerId     Int
+  customer       Customer        @relation(fields: [customerId], references: [id])
+  sentAt         DateTime        @default(now())
+  channel        ReminderChannel
+  deliveryStatus DeliveryStatus  @default(outgoing)
+}
+
+model ScoreHistory {
+  id          Int         @id @default(autoincrement())
+  customerId  Int
+  customer    Customer    @relation(fields: [customerId], references: [id])
+  recordedAt  DateTime    @default(now())
+  score       Int
+  trustStatus TrustStatus
+}
