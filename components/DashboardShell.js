@@ -6,6 +6,13 @@ import { usePathname } from "next/navigation";
 import {
   ShieldCheck,
   LayoutDashboard,
+  Receipt,
+  Wallet,
+  History,
+  Users,
+  ClipboardCheck,
+  UserCog,
+  BarChart3,
   Menu,
   X,
   Bell,
@@ -26,8 +33,10 @@ const emptySubscribe = () => () => {};
  *
  * Owns the whole chrome below `requireActiveMember()`: the fixed desktop
  * sidebar, the sticky top bar (notification bell + account menu) and the
- * off-canvas mobile drawer. All data is passed in from the server layout as
- * plain, serializable values. The mobile drawer and the account menu are
+ * off-canvas mobile drawer. The sidebar nav is role-based: owners see the
+ * full menu, cashiers the daily subset. All data is passed in from the
+ * server layout as plain, serializable values. The mobile drawer and the
+ * account menu are
  * keyed by the current pathname so any route navigation unmounts them and
  * resets their open state without a setState-in-effect (which the project's
  * react-hooks lint rules reject).
@@ -36,8 +45,21 @@ const emptySubscribe = () => () => {};
 const FOCUS_RING =
   "focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500";
 
-const NAV_ITEMS = [
+const CASHIER_NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/transaksi-baru", label: "Transaksi Baru", icon: Receipt },
+  { href: "/dashboard/pembayaran", label: "Pembayaran", icon: Wallet },
+  { href: "/dashboard/riwayat-pelanggan", label: "Riwayat Pelanggan", icon: History },
+];
+
+const OWNER_NAV_ITEMS = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/transaksi-baru", label: "Transaksi Baru", icon: Receipt },
+  { href: "/dashboard/pembayaran", label: "Pembayaran", icon: Wallet },
+  { href: "/dashboard/pelanggan", label: "Pelanggan", icon: Users },
+  { href: "/dashboard/approval", label: "Approval", icon: ClipboardCheck },
+  { href: "/dashboard/tim", label: "Tim", icon: UserCog },
+  { href: "/dashboard/laporan", label: "Laporan", icon: BarChart3 },
 ];
 
 function isActive(pathname, href) {
@@ -79,12 +101,13 @@ function Brand() {
   );
 }
 
-function NavList({ onNavigate }) {
+function NavList({ onNavigate, isOwner }) {
   const pathname = usePathname();
+  const items = isOwner ? OWNER_NAV_ITEMS : CASHIER_NAV_ITEMS;
 
   return (
     <nav aria-label="Navigasi dashboard" className="space-y-1">
-      {NAV_ITEMS.map((item) => {
+      {items.map((item) => {
         const Icon = item.icon;
         const active = isActive(pathname, item.href);
         return (
@@ -109,14 +132,14 @@ function NavList({ onNavigate }) {
 }
 
 /** Sticky two-column sidebar (desktop only). */
-function Sidebar() {
+function Sidebar({ isOwner }) {
   return (
     <aside className="hidden lg:flex sticky top-0 h-screen shrink-0 z-40 w-64 flex-col border-r border-white/40 dark:border-white/10 bg-white/65 dark:bg-[#1a1625]/60 backdrop-blur-xl">
       <div className="h-16 flex items-center px-4 border-b border-white/40 dark:border-white/10 shrink-0">
         <Brand />
       </div>
       <div className="flex-1 overflow-y-auto p-3">
-        <NavList />
+        <NavList isOwner={isOwner} />
       </div>
     </aside>
   );
@@ -127,7 +150,7 @@ function Sidebar() {
  * navigating away closes it. Escape and the dimmed overlay also close it, and
  * background scroll is locked while it is open.
  */
-function MobileNav() {
+function MobileNav({ isOwner }) {
   const [open, setOpen] = useState(false);
   const mounted = useSyncExternalStore(
     emptySubscribe,
@@ -194,7 +217,7 @@ function MobileNav() {
                   </button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-3">
-                  <NavList onNavigate={() => setOpen(false)} />
+                  <NavList onNavigate={() => setOpen(false)} isOwner={isOwner} />
                 </div>
               </aside>
             </>,
@@ -333,7 +356,7 @@ function TopBar({ pathname, userName, isOwner, pendingCount, unreadCount }) {
   return (
     <header className="sticky top-0 z-30 h-16 bg-white/65 dark:bg-[#1a1625]/60 backdrop-blur-xl border-b border-white/20 dark:border-white/10 flex items-center justify-between gap-3 px-5 sm:px-8 lg:px-12 xl:px-16">
       <div className="flex items-center gap-2 min-w-0">
-        <MobileNav key={pathname} />
+        <MobileNav key={pathname} isOwner={isOwner} />
         <div className="lg:hidden min-w-0">
           <Brand />
         </div>
@@ -366,7 +389,7 @@ export function DashboardShell({
     <NavigationGuardProvider>
       <div className="min-h-screen selection:bg-violet-500 selection:text-white">
         <div className="mx-auto flex min-h-screen w-full max-w-[1600px]">
-          <Sidebar />
+          <Sidebar isOwner={isOwner} />
           <div className="flex min-h-screen min-w-0 flex-1 flex-col">
             <TopBar
               pathname={pathname}
