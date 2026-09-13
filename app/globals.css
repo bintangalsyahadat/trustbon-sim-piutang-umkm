@@ -80,7 +80,7 @@ html[data-theme="dark"] body {
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-/* Fade-in entrance animation (referenced by Hero tabs & AuthModals overlays) */
+/* Fade-in entrance animation (used by Hero tabs, auth pages, and the dashboard) */
 @keyframes fadeIn {
   from {
     opacity: 0;

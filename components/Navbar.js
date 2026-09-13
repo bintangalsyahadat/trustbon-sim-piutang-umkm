@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { 
   ShieldCheck, 
   Menu, 
@@ -9,7 +10,8 @@ import {
 } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
-export function Navbar({ onOpenLogin, onOpenRegister }) {
+export function Navbar({ isAuthenticated = false }) {
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -96,23 +98,37 @@ export function Navbar({ onOpenLogin, onOpenRegister }) {
         {/* Actions Desktop */}
         <div className="hidden md:flex items-center gap-3">
           <ThemeToggle id="nav-theme-toggle" />
-          <button
-            id="btn-nav-masuk"
-            type="button"
-            onClick={() => onOpenLogin && onOpenLogin()}
-            className="px-4 py-2 text-sm font-semibold rounded-lg text-violet-900 dark:text-violet-200 hover:bg-violet-100/60 dark:hover:bg-violet-500/10 transition-colors cursor-pointer"
-          >
-            Masuk
-          </button>
-          <button
-            id="btn-nav-daftar"
-            type="button"
-            onClick={() => onOpenRegister && onOpenRegister()}
-            className="px-4 py-2 text-sm font-semibold rounded-lg bg-violet-500 hover:bg-violet-600 text-white shadow-md shadow-violet-500/25 dark:shadow-black/30 transition-all flex items-center gap-1.5 hover:translate-y-[-1px] active:translate-y-[0px] cursor-pointer"
-          >
-            <span>Daftar Gratis</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+          {isAuthenticated ? (
+            <button
+              id="btn-nav-dashboard"
+              type="button"
+              onClick={() => router.push("/dashboard")}
+              className="px-4 py-2 text-sm font-semibold rounded-lg bg-violet-500 hover:bg-violet-600 text-white shadow-md shadow-violet-500/25 dark:shadow-black/30 transition-all flex items-center gap-1.5 hover:translate-y-[-1px] active:translate-y-[0px] cursor-pointer"
+            >
+              <span>Ke Dashboard</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          ) : (
+            <>
+              <button
+                id="btn-nav-masuk"
+                type="button"
+                onClick={() => router.push("/login")}
+                className="px-4 py-2 text-sm font-semibold rounded-lg text-violet-900 dark:text-violet-200 hover:bg-violet-100/60 dark:hover:bg-violet-500/10 transition-colors cursor-pointer"
+              >
+                Masuk
+              </button>
+              <button
+                id="btn-nav-daftar"
+                type="button"
+                onClick={() => router.push("/register")}
+                className="px-4 py-2 text-sm font-semibold rounded-lg bg-violet-500 hover:bg-violet-600 text-white shadow-md shadow-violet-500/25 dark:shadow-black/30 transition-all flex items-center gap-1.5 hover:translate-y-[-1px] active:translate-y-[0px] cursor-pointer"
+              >
+                <span>Daftar Gratis</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </>
+          )}
         </div>
 
         {/* Mobile controls */}
@@ -165,26 +181,41 @@ export function Navbar({ onOpenLogin, onOpenRegister }) {
             Cara Kerja
           </a>
           <div className="pt-2 border-t border-violet-100 dark:border-white/10 flex flex-col gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenLogin && onOpenLogin();
-              }}
-              className="w-full text-center py-2.5 text-sm font-semibold rounded-lg text-violet-900 dark:text-violet-200 border border-violet-200 dark:border-violet-500/20 bg-white/60 dark:bg-white/5 cursor-pointer"
-            >
-              Masuk ke Akun
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenRegister && onOpenRegister();
-              }}
-              className="w-full text-center py-2.5 text-sm font-semibold rounded-lg bg-violet-500 text-white shadow-md shadow-violet-500/30 dark:shadow-black/30 cursor-pointer"
-            >
-              Daftar Bisnis Gratis
-            </button>
+            {isAuthenticated ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  router.push("/dashboard");
+                }}
+                className="w-full text-center py-2.5 text-sm font-semibold rounded-lg bg-violet-500 text-white shadow-md shadow-violet-500/30 dark:shadow-black/30 cursor-pointer"
+              >
+                Ke Dashboard
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    router.push("/login");
+                  }}
+                  className="w-full text-center py-2.5 text-sm font-semibold rounded-lg text-violet-900 dark:text-violet-200 border border-violet-200 dark:border-violet-500/20 bg-white/60 dark:bg-white/5 cursor-pointer"
+                >
+                  Masuk ke Akun
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    router.push("/register");
+                  }}
+                  className="w-full text-center py-2.5 text-sm font-semibold rounded-lg bg-violet-500 text-white shadow-md shadow-violet-500/30 dark:shadow-black/30 cursor-pointer"
+                >
+                  Daftar Bisnis Gratis
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}

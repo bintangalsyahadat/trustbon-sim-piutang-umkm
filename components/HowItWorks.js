@@ -1,8 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Building2, UserPlus, FileSpreadsheet, ArrowRight, ShieldCheck, Check } from "lucide-react";
 
-export function HowItWorks({ onOpenRegister }) {
+export function HowItWorks({ isAuthenticated = false }) {
+  const router = useRouter();
   const steps = [
     {
       step: "01",
@@ -114,10 +116,10 @@ export function HowItWorks({ onOpenRegister }) {
           <button
             id="how-it-works-cta"
             type="button"
-            onClick={() => onOpenRegister && onOpenRegister()}
+            onClick={() => router.push(isAuthenticated ? "/dashboard" : "/register")}
             className="px-6 py-3.5 rounded-xl bg-violet-500 hover:bg-violet-600 text-white font-semibold text-sm shadow-md shadow-violet-500/30 dark:shadow-black/30 transition-all flex items-center justify-center gap-2 mx-auto sm:mx-0"
           >
-            <span>Daftar Bisnis Sekarang</span>
+            <span>{isAuthenticated ? "Ke Dashboard" : "Daftar Bisnis Sekarang"}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

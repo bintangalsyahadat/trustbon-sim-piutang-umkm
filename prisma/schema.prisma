@@ -13,6 +13,20 @@ enum Role {
   cashier
 }
 
+enum MemberStatus {
+  pending
+  active
+  rejected
+  removed
+}
+
+enum NotificationType {
+  join_request
+  join_approved
+  join_rejected
+  member_removed
+}
+
 enum TrustStatus {
   stable
   recovering
@@ -52,39 +66,43 @@ enum DeliveryStatus {
 // ── MODELS ─────────────────────────────────────────────
 
 model Business {
-  id                Int      @id @default(autoincrement())
-  name              String
-  ownerName         String
-  ownerPhoneNumber  String
-  inviteCode        String   @unique
-  createdAt         DateTime @default(now())
+  id               Int      @id @default(autoincrement())
+  name             String
+  ownerName        String
+  ownerPhoneNumber String
+  inviteCode       String   @unique
+  createdAt        DateTime @default(now())
 
-  users             User[]
-  customers         Customer[]
-  transactions      Transaction[]
+  users        User[]
+  customers    Customer[]
+  transactions Transaction[]
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  businessId  Int
-  business    Business @relation(fields: [businessId], references: [id])
-  name        String
-  email       String   @unique
-  password    String
-  role        Role
-  createdAt   DateTime @default(now())
+  id         Int          @id @default(autoincrement())
+  businessId Int
+  business   Business     @relation(fields: [businessId], references: [id])
+  name       String
+  email      String       @unique
+  password   String
+  role       Role
+  status     MemberStatus @default(active)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  notifications Notification[]
 }
 
 model Customer {
-  id           Int         @id @default(autoincrement())
-  businessId   Int
-  business     Business    @relation(fields: [businessId], references: [id])
-  name         String
-  phoneNumber  String
-  creditLimit  Decimal
-  riskScore    Int         @default(50)
-  trustStatus  TrustStatus @default(recovering)
-  createdAt    DateTime    @default(now())
+  id          Int         @id @default(autoincrement())
+  businessId  Int
+  business    Business    @relation(fields: [businessId], references: [id])
+  name        String
+  phoneNumber String
+  creditLimit Decimal
+  riskScore   Int         @default(50)
+  trustStatus TrustStatus @default(recovering)
+  createdAt   DateTime    @default(now())
 
   transactions Transaction[]
   reminders    Reminder[]
@@ -104,7 +122,7 @@ model Transaction {
   paymentStatus   RecordStatus    @default(draft)
   status          PaymentProgress @default(unpaid)
 
-  payments        Payment[]
+  payments Payment[]
 }
 
 model Payment {
@@ -132,4 +150,16 @@ model ScoreHistory {
   recordedAt  DateTime    @default(now())
   score       Int
   trustStatus TrustStatus
+}
+
+model Notification {
+  id        Int              @id @default(autoincrement())
+  userId    Int
+  user      User             @relation(fields: [userId], references: [id])
+  type      NotificationType
+  title     String
+  body      String?
+  href      String?
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
 }

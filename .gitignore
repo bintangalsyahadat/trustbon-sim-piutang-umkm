@@ -45,6 +45,7 @@ next-env.d.ts
 # local tooling / memory artifacts
 /EchoesVault/
 /.opencode/
+/.cortexkit/
 
 # package manager: this project uses bun (bun.lock is tracked)
 /package-lock.json

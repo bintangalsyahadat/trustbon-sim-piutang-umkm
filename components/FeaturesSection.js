@@ -16,6 +16,19 @@ import {
 } from "lucide-react";
 
 export function FeaturesSection({ onExploreScore }) {
+  // The landing page is now a server component, so it cannot pass this
+  // callback. Fall back to scrolling directly to the simulator section.
+  const handleExploreScore = () => {
+    if (typeof onExploreScore === "function") {
+      onExploreScore();
+      return;
+    }
+    const el = document.getElementById("simulasi");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <section id="fitur" className="py-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -90,7 +103,7 @@ export function FeaturesSection({ onExploreScore }) {
             <div className="pt-2">
               <button
                 type="button"
-                onClick={() => onExploreScore && onExploreScore()}
+                onClick={handleExploreScore}
                 className="text-xs font-semibold text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-1.5"
               >
                 <span>Coba kalkulator simulasi skoring</span>

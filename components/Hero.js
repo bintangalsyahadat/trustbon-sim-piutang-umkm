@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ShieldAlert,
   ShieldCheck,
@@ -16,7 +17,8 @@ import {
   ChevronRight
 } from "lucide-react";
 
-export function Hero({ onOpenRegister, onOpenLogin }) {
+export function Hero({ isAuthenticated = false }) {
+  const router = useRouter();
   // Interactive state for hero preview
   const [activeTab, setActiveTab] = useState("transaksi"); // 'transaksi' | 'pelanggan' | 'whatsapp'
   const [isApproved, setIsApproved] = useState(false);
@@ -56,24 +58,38 @@ export function Hero({ onOpenRegister, onOpenLogin }) {
 
             {/* CTA Buttons */}
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-              <button
-                id="hero-cta-daftar"
-                type="button"
-                onClick={() => onOpenRegister && onOpenRegister()}
-                className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-violet-500 hover:bg-violet-600 text-white font-semibold text-base shadow-lg shadow-violet-500/30 hover:shadow-violet-500/45 dark:shadow-black/30 dark:hover:shadow-black/40 transition-all flex items-center justify-center gap-2 hover:translate-y-[-1px] active:translate-y-0"
-              >
-                <span>Daftar Gratis Sekarang</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              {isAuthenticated ? (
+                <button
+                  id="hero-cta-dashboard"
+                  type="button"
+                  onClick={() => router.push("/dashboard")}
+                  className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-violet-500 hover:bg-violet-600 text-white font-semibold text-base shadow-lg shadow-violet-500/30 hover:shadow-violet-500/45 dark:shadow-black/30 dark:hover:shadow-black/40 transition-all flex items-center justify-center gap-2 hover:translate-y-[-1px] active:translate-y-0"
+                >
+                  <span>Ke Dashboard</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <>
+                  <button
+                    id="hero-cta-daftar"
+                    type="button"
+                    onClick={() => router.push("/register")}
+                    className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-violet-500 hover:bg-violet-600 text-white font-semibold text-base shadow-lg shadow-violet-500/30 hover:shadow-violet-500/45 dark:shadow-black/30 dark:hover:shadow-black/40 transition-all flex items-center justify-center gap-2 hover:translate-y-[-1px] active:translate-y-0"
+                  >
+                    <span>Daftar Gratis Sekarang</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
 
-              <button
-                id="hero-cta-masuk"
-                type="button"
-                onClick={() => onOpenLogin && onOpenLogin()}
-                className="w-full sm:w-auto px-7 py-3.5 rounded-xl border border-violet-200 dark:border-violet-500/20 bg-white/70 dark:bg-white/5 text-violet-900 dark:text-violet-200 font-semibold text-base hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-colors flex items-center justify-center gap-2"
-              >
-                <span>Masuk ke Akun</span>
-              </button>
+                  <button
+                    id="hero-cta-masuk"
+                    type="button"
+                    onClick={() => router.push("/login")}
+                    className="w-full sm:w-auto px-7 py-3.5 rounded-xl border border-violet-200 dark:border-violet-500/20 bg-white/70 dark:bg-white/5 text-violet-900 dark:text-violet-200 font-semibold text-base hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <span>Masuk ke Akun</span>
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Trust points */}
