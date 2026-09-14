@@ -66,6 +66,14 @@ const PASSWORD = "E2e-Passw0rd!";
 const NEW_PASSWORD = "E2e-Passw0rd-New!";
 const DEBUG = process.env.E2E_DEBUG === "1";
 
+// Verbatim createCustomer guard/validation error strings (app/actions/customers.js).
+const CUSTOMER_ERR = {
+  NOT_OWNER: "Hanya pemilik bisnis yang dapat melakukan tindakan ini.",
+  NAME: "Nama pelanggan wajib diisi (maksimal 100 karakter).",
+  PHONE: "Nomor HP tidak valid. Gunakan 9–16 digit angka.",
+  LIMIT: "Limit kredit tidak valid.",
+};
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -260,6 +268,24 @@ async function getPage(pathname, jar) {
   return out;
 }
 
+/**
+ * Asserts that an owner-only route redirects an active cashier away (the pattern
+ * already used for /dashboard/bisnis) and returns the observed `status location`
+ * for the scenario report. Callers pass the cashier's cookie jar.
+ */
+async function assertCashierRedirected(pathname, cashierJar, label) {
+  const res = await getPage(pathname, cashierJar);
+  assert(
+    res.status >= 300 && res.status < 400,
+    `${label}: cashier GET ${pathname} expected redirect, got ${res.status}`,
+  );
+  assert(
+    (res.location || "").includes("/dashboard"),
+    `${label}: cashier GET ${pathname} redirected to ${res.location}`,
+  );
+  return `${pathname} -> ${res.status} ${res.location}`;
+}
+
 async function login(jar, email, password) {
   const csrfRes = await fetch(`${BASE}/api/auth/csrf`, {
     redirect: "manual",
@@ -322,6 +348,8 @@ function parseActionResult(text) {
       out.error = errMatch[1];
     }
   }
+  const customerIdMatch = text.match(/"customerId":\s*(\d+)/);
+  if (customerIdMatch) out.customerId = Number(customerIdMatch[1]);
   out.reauthRequired = /"reauthRequired":\s*(true|!0)/.test(text);
   return out;
 }
@@ -468,6 +496,59 @@ async function stopServer(child) {
 
 const fx = {};
 
+/**
+ * Deletes businesses together with their NON-cascading descendants in dependency
+ * order: payment -> transaction -> reminder -> scoreHistory -> customer -> user
+ * -> business. `Business` relations do not cascade, so deleting a business
+ * directly throws an FK violation once it owns customers/transactions.
+ */
+async function deleteBusinessesCascade(businessIds) {
+  const ids = [
+    ...new Set(businessIds.filter((id) => Number.isInteger(id) && id > 0)),
+  ];
+  if (!ids.length) return;
+
+  const users = await prisma.user.findMany({
+    where: { businessId: { in: ids } },
+    select: { id: true },
+  });
+  const userIds = users.map((u) => u.id);
+  if (userIds.length) {
+    await prisma.notification.deleteMany({ where: { userId: { in: userIds } } });
+  }
+
+  const customers = await prisma.customer.findMany({
+    where: { businessId: { in: ids } },
+    select: { id: true },
+  });
+  const customerIds = customers.map((c) => c.id);
+
+  const transactions = await prisma.transaction.findMany({
+    where: { businessId: { in: ids } },
+    select: { id: true },
+  });
+  const transactionIds = transactions.map((t) => t.id);
+  if (transactionIds.length) {
+    await prisma.payment.deleteMany({
+      where: { transactionId: { in: transactionIds } },
+    });
+    await prisma.transaction.deleteMany({ where: { id: { in: transactionIds } } });
+  }
+
+  if (customerIds.length) {
+    await prisma.reminder.deleteMany({ where: { customerId: { in: customerIds } } });
+    await prisma.scoreHistory.deleteMany({
+      where: { customerId: { in: customerIds } },
+    });
+    await prisma.customer.deleteMany({ where: { id: { in: customerIds } } });
+  }
+
+  if (userIds.length) {
+    await prisma.user.deleteMany({ where: { id: { in: userIds } } });
+  }
+  await prisma.business.deleteMany({ where: { id: { in: ids } } });
+}
+
 async function preClean() {
   const stale = await prisma.user.findMany({
     where: { email: { endsWith: E2E_SUFFIX } },
@@ -475,25 +556,30 @@ async function preClean() {
   });
   const userIds = stale.map((u) => u.id);
   const emails = stale.map((u) => u.email);
-  const businessIds = [...new Set(stale.map((u) => u.businessId).filter(Boolean))];
 
-  if (userIds.length) {
-    await prisma.notification.deleteMany({ where: { userId: { in: userIds } } });
-    await prisma.notification.deleteMany({ where: { body: { in: emails } } });
-    await prisma.user.deleteMany({ where: { id: { in: userIds } } });
-  }
-  if (businessIds.length) {
-    await prisma.business.deleteMany({ where: { id: { in: businessIds } } });
-  }
   // Catch businesses created by a prior crashed run whose users were already removed.
-  await prisma.business.deleteMany({
+  const orphanBusinesses = await prisma.business.findMany({
     where: {
       OR: [
         { name: { startsWith: "E2E " } },
         { inviteCode: { startsWith: "E2E-" } },
       ],
     },
+    select: { id: true },
   });
+  const businessIds = [
+    ...new Set([
+      ...stale.map((u) => u.businessId).filter(Boolean),
+      ...orphanBusinesses.map((b) => b.id),
+    ]),
+  ];
+
+  if (userIds.length) {
+    await prisma.notification.deleteMany({ where: { userId: { in: userIds } } });
+    await prisma.notification.deleteMany({ where: { body: { in: emails } } });
+  }
+  // Business has no cascade: clear its descendants before the business rows.
+  await deleteBusinessesCascade(businessIds);
 }
 
 const createBusiness = (name, inviteCode) =>
@@ -626,6 +712,7 @@ async function main() {
     "markNotificationsRead",
     "markNotificationRead",
     "removeMember",
+    "createCustomer",
   ];
   const resolution = requiredActions.map((name) => ({
     name,
@@ -820,20 +907,16 @@ async function main() {
     // Member management (pending join requests + active member list + remove)
     // now lives on /dashboard/bisnis (owner-only). The old /dashboard/anggota
     // route has been deleted and is no longer exercised.
-    const cashierBisnis = await getPage("/dashboard/bisnis", cashier);
-    assert(
-      cashierBisnis.status >= 300 && cashierBisnis.status < 400,
-      `cashier /dashboard/bisnis expected redirect, got ${cashierBisnis.status}`,
-    );
-    assert(
-      (cashierBisnis.location || "").includes("/dashboard"),
-      `cashier /dashboard/bisnis redirected to ${cashierBisnis.location}`,
+    const redirected = await assertCashierRedirected(
+      "/dashboard/bisnis",
+      cashier,
+      "bisnis",
     );
 
     const ownerBisnis = await getPage("/dashboard/bisnis", owner);
     assertEq(ownerBisnis.status, 200, "owner /dashboard/bisnis");
 
-    return `cashier bisnis -> ${cashierBisnis.status} ${cashierBisnis.location}; owner bisnis -> 200`;
+    return `${redirected}; owner bisnis -> 200`;
   });
 
   // ── 4. Owner reads everything ─────────────────────────────────────────────
@@ -1765,6 +1848,265 @@ async function main() {
     },
   );
 
+  // ── 28. Owner can open the customer list ──────────────────────────────────
+  await scenario(
+    28,
+    "owner GET /dashboard/pelanggan renders the customer management surface",
+    async () => {
+      const owner = await jarFor(fx.ownerA.email);
+      const res = await getPage("/dashboard/pelanggan", owner);
+      assertEq(res.status, 200, "owner GET /dashboard/pelanggan");
+      for (const marker of [
+        "Kelola pelanggan",
+        "Tambah pelanggan",
+        'data-testid="customer-search"',
+      ]) {
+        assert(
+          res.body.includes(marker),
+          `owner /dashboard/pelanggan is missing ${JSON.stringify(marker)}`,
+        );
+      }
+      return 'owner list 200; "Kelola pelanggan" + "Tambah pelanggan" + customer-search present';
+    },
+  );
+
+  // ── 29. Cashiers cannot open the owner-only customer list ─────────────────
+  await scenario(
+    29,
+    "cashier GET /dashboard/pelanggan is redirected off the owner-only route",
+    async () => {
+      const cashier = await jarFor(fx.activeA2.email);
+      return await assertCashierRedirected(
+        "/dashboard/pelanggan",
+        cashier,
+        "customer list",
+      );
+    },
+  );
+
+  // ── 30. createCustomer is owner-only ──────────────────────────────────────
+  await scenario(
+    30,
+    "createCustomer refuses a cashier and creates no customer row",
+    async () => {
+      const cashier = await jarFor(fx.activeA2.email);
+      const before = await prisma.customer.count({
+        where: { businessId: fx.businessA.id },
+      });
+
+      const refused = await mustAction(cashier, "createCustomer", [
+        {
+          name: "E2E Kasir Ditolak",
+          phoneNumber: "081234567890",
+          creditLimit: 250000,
+        },
+      ]);
+      assert(refused.parsed.ok === false, "cashier createCustomer was accepted");
+      assertEq(
+        refused.parsed.error,
+        CUSTOMER_ERR.NOT_OWNER,
+        "cashier createCustomer error",
+      );
+
+      const after = await prisma.customer.count({
+        where: { businessId: fx.businessA.id },
+      });
+      assertEq(after, before, "cashier createCustomer changed the customer count");
+
+      return `action id ${refused.id} on ${refused.page} -> ok:false "${refused.parsed.error}"; business A customers ${before} -> ${after}`;
+    },
+  );
+
+  // ── 31. Validation guards run before any mutation ─────────────────────────
+  await scenario(
+    31,
+    "createCustomer rejects blank name, bad phone, and negative limit without writing",
+    async () => {
+      const owner = await jarFor(fx.ownerA.email);
+      const before = await prisma.customer.count({
+        where: { businessId: fx.businessA.id },
+      });
+
+      const cases = [
+        {
+          label: "blank name",
+          payload: { name: "   ", phoneNumber: "081234567890", creditLimit: 100000 },
+          error: CUSTOMER_ERR.NAME,
+        },
+        {
+          label: "invalid phone",
+          payload: { name: "E2E Bad Phone", phoneNumber: "abc", creditLimit: 100000 },
+          error: CUSTOMER_ERR.PHONE,
+        },
+        {
+          label: "negative creditLimit",
+          payload: { name: "E2E Bad Limit", phoneNumber: "081234567890", creditLimit: -5 },
+          error: CUSTOMER_ERR.LIMIT,
+        },
+      ];
+
+      for (const testCase of cases) {
+        const run = await mustAction(owner, "createCustomer", [testCase.payload]);
+        assert(run.parsed.ok === false, `${testCase.label} createCustomer was accepted`);
+        assertEq(
+          run.parsed.error,
+          testCase.error,
+          `${testCase.label} createCustomer error`,
+        );
+
+        const count = await prisma.customer.count({
+          where: { businessId: fx.businessA.id },
+        });
+        assertEq(count, before, `${testCase.label} createCustomer wrote a customer row`);
+      }
+
+      return `3 rejected cases (blank name, phone "abc", creditLimit -5); business A customers stayed ${before}`;
+    },
+  );
+
+  // ── 32. Owner creates a customer (spaces/dashes normalized) ───────────────
+  await scenario(
+    32,
+    "createCustomer creates a business-scoped customer with default risk/trust",
+    async () => {
+      const owner = await jarFor(fx.ownerA.email);
+      const before = await prisma.customer.count({
+        where: { businessId: fx.businessA.id },
+      });
+
+      const run = await mustAction(owner, "createCustomer", [
+        {
+          name: "E2E Pelanggan Satu",
+          phoneNumber: "0812-3456-7890",
+          creditLimit: 1500000,
+        },
+      ]);
+      assert(run.parsed.ok === true, `createCustomer returned ${JSON.stringify(run.parsed)}`);
+
+      const created = await prisma.customer.findFirst({
+        where: { businessId: fx.businessA.id, name: "E2E Pelanggan Satu" },
+        select: {
+          id: true,
+          businessId: true,
+          name: true,
+          phoneNumber: true,
+          creditLimit: true,
+          riskScore: true,
+          trustStatus: true,
+        },
+      });
+      assert(created, "createCustomer returned ok but no customer row was written");
+      fx.customerA1 = created.id;
+
+      assertEq(run.parsed.customerId, created.id, "returned customerId matches the row");
+      assertEq(created.businessId, fx.businessA.id, "created customer businessId");
+      assertEq(created.phoneNumber, "081234567890", "created customer phoneNumber (normalized)");
+      assertEq(Number(created.creditLimit), 1500000, "created customer creditLimit");
+      assertEq(created.riskScore, 50, "created customer riskScore");
+      assertEq(created.trustStatus, "recovering", "created customer trustStatus");
+      assertEq(
+        await prisma.customer.count({ where: { businessId: fx.businessA.id } }),
+        before + 1,
+        "business A customer count after create",
+      );
+
+      return `action id ${run.id} on ${run.page} -> customerA1#${created.id}; riskScore 50, trustStatus recovering, limit 1500000, phone "081234567890"`;
+    },
+  );
+
+  // ── 33. The new customer appears on the owner's list ──────────────────────
+  await scenario(
+    33,
+    "owner list page shows the created customer, its limit, and a table row",
+    async () => {
+      const owner = await jarFor(fx.ownerA.email);
+      const res = await getPage("/dashboard/pelanggan", owner);
+      assertEq(res.status, 200, "owner GET /dashboard/pelanggan after create");
+
+      // Intl formats IDR with a non-breaking space, so normalize it for matching.
+      const body = res.body.replace(/\u00a0/g, " ");
+      for (const marker of [
+        "E2E Pelanggan Satu",
+        "Rp 1.500.000",
+        'data-testid="customer-row"',
+      ]) {
+        assert(
+          body.includes(marker),
+          `owner list page is missing ${JSON.stringify(marker)}`,
+        );
+      }
+      return 'list 200; contains "E2E Pelanggan Satu", "Rp 1.500.000", customer-row';
+    },
+  );
+
+  // ── 34. Customer list is business-scoped (isolation) ──────────────────────
+  await scenario(
+    34,
+    "business B's list does not leak business A's customer",
+    async () => {
+      const ownerB = await jarFor(fx.ownerB.email);
+      const res = await getPage("/dashboard/pelanggan", ownerB);
+      assertEq(res.status, 200, "ownerB GET /dashboard/pelanggan");
+      assert(
+        !res.body.includes("E2E Pelanggan Satu"),
+        "ownerB's customer list leaked business A's customer",
+      );
+      return "ownerB list 200; business A customer absent";
+    },
+  );
+
+  // ── 35. Owner opens the customer detail page ──────────────────────────────
+  await scenario(
+    35,
+    "owner detail page renders the customer and a zero active debt",
+    async () => {
+      assert(fx.customerA1, "fx.customerA1 was never set by the create scenario");
+      const owner = await jarFor(fx.ownerA.email);
+      const res = await getPage(`/dashboard/pelanggan/${fx.customerA1}`, owner);
+      assertEq(res.status, 200, "owner GET /dashboard/pelanggan/<id>");
+
+      const body = res.body.replace(/\u00a0/g, " ");
+      assert(
+        body.includes("E2E Pelanggan Satu"),
+        "owner detail page does not render the customer name",
+      );
+      assert(
+        body.includes("Utang Aktif"),
+        "owner detail page is missing the active-debt label",
+      );
+      assert(body.includes("Rp 0"), "owner detail page does not render a zero active debt");
+      return `owner detail /dashboard/pelanggan/${fx.customerA1} 200; name + "Utang Aktif" + "Rp 0" present`;
+    },
+  );
+
+  // ── 36. Cross-business detail access is a 404, not a redirect ─────────────
+  await scenario(
+    36,
+    "ownerB gets 404 (IDOR-safe) for business A's customer detail",
+    async () => {
+      assert(fx.customerA1, "fx.customerA1 was never set by the create scenario");
+      const ownerB = await jarFor(fx.ownerB.email);
+      const res = await getPage(`/dashboard/pelanggan/${fx.customerA1}`, ownerB);
+      assertEq(res.status, 404, "ownerB GET business A's customer detail");
+      return `ownerB /dashboard/pelanggan/${fx.customerA1} -> 404 (not a redirect)`;
+    },
+  );
+
+  // ── 37. Cashiers cannot open the owner-only detail page ───────────────────
+  await scenario(
+    37,
+    "cashier GET the customer detail page is redirected off the owner-only route",
+    async () => {
+      assert(fx.customerA1, "fx.customerA1 was never set by the create scenario");
+      const cashier = await jarFor(fx.activeA2.email);
+      return await assertCashierRedirected(
+        `/dashboard/pelanggan/${fx.customerA1}`,
+        cashier,
+        "customer detail",
+      );
+    },
+  );
+
   // ── Resolved mapping report ───────────────────────────────────────────────
   console.log("\nResolved action-id mapping (client chunks ∩ server manifest, probe-confirmed above):");
   for (const entry of resolution) {
@@ -1785,29 +2127,35 @@ async function cleanupFixtures() {
   });
   const userIds = stale.map((u) => u.id);
   const emails = stale.map((u) => u.email);
-  const businessIds = [
-    ...new Set(stale.map((u) => u.businessId).filter(Boolean)),
-    fx.businessA?.id,
-    fx.businessB?.id,
-    fx.convertedBusinessId,
-  ].filter(Boolean);
 
-  if (userIds.length) {
-    await prisma.notification.deleteMany({ where: { userId: { in: userIds } } });
-    await prisma.notification.deleteMany({ where: { body: { in: emails } } });
-    await prisma.user.deleteMany({ where: { id: { in: userIds } } });
-  }
-  if (businessIds.length) {
-    await prisma.business.deleteMany({ where: { id: { in: businessIds } } });
-  }
-  await prisma.business.deleteMany({
+  // Catch-all: E2E-named/invite businesses from a crashed run (users may be gone).
+  const orphanBusinesses = await prisma.business.findMany({
     where: {
       OR: [
         { name: { startsWith: "E2E " } },
         { inviteCode: { startsWith: "E2E-" } },
       ],
     },
+    select: { id: true },
   });
+  const businessIds = [
+    ...new Set(
+      [
+        ...stale.map((u) => u.businessId).filter(Boolean),
+        fx.businessA?.id,
+        fx.businessB?.id,
+        fx.convertedBusinessId,
+        ...orphanBusinesses.map((b) => b.id),
+      ].filter(Boolean),
+    ),
+  ];
+
+  if (userIds.length) {
+    await prisma.notification.deleteMany({ where: { userId: { in: userIds } } });
+    await prisma.notification.deleteMany({ where: { body: { in: emails } } });
+  }
+  // Business has no cascade: clear its descendants before the business rows.
+  await deleteBusinessesCascade(businessIds);
 }
 
 async function verifyRealRowsUntouched(snapshot) {

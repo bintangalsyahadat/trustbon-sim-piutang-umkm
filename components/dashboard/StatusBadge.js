@@ -59,3 +59,20 @@ export function TrustStatusBadge({ value }) {
   const config = TRUST_STATUS_MAP[value] ?? fallbackConfig(value);
   return <Badge tone={config.tone}>{config.label}</Badge>;
 }
+
+// Customer.riskScore risk bands: 0–39 low (emerald), 40–69 medium (amber),
+// 70–100 high (rose). Non-finite or out-of-range scores render a neutral "—".
+export function RiskScoreBadge({ value }) {
+  const score = Number(value);
+  if (!Number.isFinite(score) || score < 0 || score > 100) {
+    return <Badge tone="neutral">—</Badge>;
+  }
+  const rounded = Math.round(score);
+  const band =
+    rounded <= 39
+      ? { tone: "emerald", label: "Risiko Rendah" }
+      : rounded <= 69
+        ? { tone: "amber", label: "Risiko Sedang" }
+        : { tone: "rose", label: "Risiko Tinggi" };
+  return <Badge tone={band.tone}>{`${rounded} · ${band.label}`}</Badge>;
+}
