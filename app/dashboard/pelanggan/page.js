@@ -1,12 +1,12 @@
 import { prisma } from "@/lib/prisma";
-import { requireOwner } from "@/lib/session-guards";
+import { requireActiveMember } from "@/lib/session-guards";
 import { getActiveDebtByCustomer } from "@/lib/customer-debt";
 import { CustomerManagement } from "./CustomerManagement";
 
 export const metadata = { title: "Pelanggan — TrustBon" };
 
 export default async function PelangganPage() {
-  const { member } = await requireOwner();
+  const { member } = await requireActiveMember();
 
   const [customers, debts] = await Promise.all([
     prisma.customer.findMany({
@@ -37,7 +37,7 @@ export default async function PelangganPage() {
 
   return (
     <div className="max-w-6xl mx-auto animate-fadeIn">
-      <CustomerManagement customers={items} />
+      <CustomerManagement customers={items} userRole={member.role} />
     </div>
   );
 }

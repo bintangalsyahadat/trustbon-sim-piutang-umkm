@@ -49,6 +49,7 @@ const CASHIER_NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/transaksi-baru", label: "Transaksi Baru", icon: Receipt },
   { href: "/dashboard/pembayaran", label: "Pembayaran", icon: Wallet },
+  { href: "/dashboard/pelanggan", label: "Pelanggan", icon: Users },
   { href: "/dashboard/riwayat-pelanggan", label: "Riwayat Pelanggan", icon: History },
 ];
 

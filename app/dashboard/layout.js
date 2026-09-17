@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireActiveMember } from "@/lib/session-guards";
 import { DashboardShell } from "@/components/DashboardShell";
+import { ToastProvider } from "@/components/Toast";
 
 export default async function DashboardLayout({ children }) {
   // Authoritative gate for the whole dashboard: redirects to /login when
@@ -21,13 +22,15 @@ export default async function DashboardLayout({ children }) {
   ]);
 
   return (
-    <DashboardShell
-      userName={member.name}
-      isOwner={isOwner}
-      pendingCount={pendingCount}
-      unreadCount={unreadCount}
-    >
-      {children}
-    </DashboardShell>
+    <ToastProvider>
+      <DashboardShell
+        userName={member.name}
+        isOwner={isOwner}
+        pendingCount={pendingCount}
+        unreadCount={unreadCount}
+      >
+        {children}
+      </DashboardShell>
+    </ToastProvider>
   );
 }

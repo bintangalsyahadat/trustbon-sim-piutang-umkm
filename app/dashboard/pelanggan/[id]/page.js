@@ -95,7 +95,7 @@ export default async function CustomerDetailPage({ params }) {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <RiskScoreBadge value={customer.riskScore} />
+          <RiskScoreBadge value={customer.riskScore} trustStatus={customer.trustStatus} />
           <TrustStatusBadge value={customer.trustStatus} />
         </div>
       </div>

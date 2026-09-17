@@ -28,6 +28,7 @@ enum NotificationType {
 }
 
 enum TrustStatus {
+  unrated
   stable
   recovering
   at_risk
@@ -101,7 +102,7 @@ model Customer {
   phoneNumber String
   creditLimit Decimal
   riskScore   Int         @default(50)
-  trustStatus TrustStatus @default(recovering)
+  trustStatus TrustStatus @default(unrated)
   createdAt   DateTime    @default(now())
 
   transactions Transaction[]

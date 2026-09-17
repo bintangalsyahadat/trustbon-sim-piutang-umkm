@@ -38,6 +38,7 @@ const PAYMENT_STATUS_MAP = {
 
 // Customer.trustStatus (TrustStatus)
 const TRUST_STATUS_MAP = {
+  unrated: { label: "Belum Dinilai", tone: "neutral" },
   stable: { label: "Aman", tone: "emerald" },
   recovering: { label: "Pemulihan", tone: "amber" },
   at_risk: { label: "Risiko Tinggi", tone: "rose" },
@@ -62,7 +63,10 @@ export function TrustStatusBadge({ value }) {
 
 // Customer.riskScore risk bands: 0–39 low (emerald), 40–69 medium (amber),
 // 70–100 high (rose). Non-finite or out-of-range scores render a neutral "—".
-export function RiskScoreBadge({ value }) {
+export function RiskScoreBadge({ value, trustStatus }) {
+  if (trustStatus === "unrated") {
+    return <Badge tone="neutral">—</Badge>;
+  }
   const score = Number(value);
   if (!Number.isFinite(score) || score < 0 || score > 100) {
     return <Badge tone="neutral">—</Badge>;

@@ -10,7 +10,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { Loader2, Phone, User, Wallet } from "lucide-react";
-import { createCustomer } from "@/app/actions/customers";
+import { updateCustomer } from "@/app/actions/customers";
 import { AuthError, authInputClass, authLabelClass } from "@/components/AuthUi";
 import { formatIDR } from "@/lib/format";
 
@@ -27,7 +27,6 @@ const secondaryButtonClass =
 
 const groupFormatter = new Intl.NumberFormat("id-ID");
 
-/** Inline field-level validation message. */
 function FieldError({ id, message }) {
   if (!message) return null;
   return (
@@ -41,13 +40,10 @@ function FieldError({ id, message }) {
 }
 
 /**
- * Form dialog for adding a customer. Uses the same portal + focus-trap +
- * scroll-lock mechanism as `ConfirmDialog`, but is a real submit form: the
- * server action's error string is rendered verbatim and the dialog stays open
- * so the user's input survives a failed submit.
+ * Edit customer dialog. Pre-fills the form with existing customer data.
+ * Owner-only action.
  */
-export function AddCustomerDialog({ open, onClose, onCreated, userRole = "owner" }) {
-  const isOwner = userRole === "owner";
+export function EditCustomerDialog({ open, onClose, onUpdated, customer }) {
   const mounted = useSyncExternalStore(
     emptySubscribe,
     () => true,
@@ -55,16 +51,16 @@ export function AddCustomerDialog({ open, onClose, onCreated, userRole = "owner"
   );
   const cardRef = useRef(null);
   const nameRef = useRef(null);
-  const phoneRef = useRef(null);
-  const limitRef = useRef(null);
   const onCloseRef = useRef(onClose);
   const titleId = useId();
   const descriptionId = useId();
   const baseId = useId();
 
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [limitDigits, setLimitDigits] = useState("");
+  const [name, setName] = useState(() => customer?.name ?? "");
+  const [phone, setPhone] = useState(() => customer?.phoneNumber ?? "");
+  const [limitDigits, setLimitDigits] = useState(
+    () => (customer ? String(Math.round(Number(customer.creditLimit))) : "")
+  );
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState(null);
   const [pending, startTransition] = useTransition();
@@ -75,7 +71,6 @@ export function AddCustomerDialog({ open, onClose, onCreated, userRole = "owner"
 
   const dismissible = !pending;
 
-  // Move focus into the first field on open; restore it on close.
   useEffect(() => {
     if (!open || !mounted) return;
     const previouslyFocused = document.activeElement;
@@ -88,7 +83,6 @@ export function AddCustomerDialog({ open, onClose, onCreated, userRole = "owner"
     };
   }, [open, mounted]);
 
-  // Body scroll lock while open.
   useEffect(() => {
     if (!open || !mounted) return;
     const previousOverflow = document.body.style.overflow;
@@ -98,7 +92,6 @@ export function AddCustomerDialog({ open, onClose, onCreated, userRole = "owner"
     };
   }, [open, mounted]);
 
-  // Escape to dismiss (unless submitting) + Tab focus trap.
   useEffect(() => {
     if (!open || !mounted) return;
     function onKeyDown(event) {
@@ -135,9 +128,6 @@ export function AddCustomerDialog({ open, onClose, onCreated, userRole = "owner"
   }, [open, mounted, dismissible]);
 
   function resetForm() {
-    setName("");
-    setPhone("");
-    setLimitDigits("");
     setErrors({});
     setFormError(null);
   }
@@ -165,7 +155,6 @@ export function AddCustomerDialog({ open, onClose, onCreated, userRole = "owner"
 
   function handleSubmit(event) {
     event.preventDefault();
-    // Never submit a duplicate request while one is in flight.
     if (pending) return;
 
     const nextErrors = validate();
@@ -175,35 +164,34 @@ export function AddCustomerDialog({ open, onClose, onCreated, userRole = "owner"
       return;
     }
     if (nextErrors.phone) {
-      phoneRef.current?.focus();
       return;
     }
     if (nextErrors.limit) {
-      limitRef.current?.focus();
       return;
     }
     setFormError(null);
 
     const payload = {
+      id: customer.id,
       name: name.trim(),
       phoneNumber: phone.trim().replace(/[\s-]/g, ""),
-      creditLimit: isOwner ? Number(limitDigits || 0) : 100000,
+      creditLimit: Number(limitDigits || 0),
     };
 
     startTransition(async () => {
       try {
-        const res = await createCustomer(payload);
+        const res = await updateCustomer(payload);
         if (res?.ok) {
           resetForm();
-          onCreated?.(res.customerId);
+          onUpdated?.();
           onCloseRef.current?.();
         } else {
           setFormError(
-            res?.error ?? "Gagal menambahkan pelanggan. Silakan coba lagi."
+            res?.error ?? "Gagal mengubah data pelanggan. Silakan coba lagi."
           );
         }
       } catch {
-        setFormError("Gagal menambahkan pelanggan. Silakan coba lagi.");
+        setFormError("Gagal mengubah data pelanggan. Silakan coba lagi.");
       }
     });
   }
@@ -214,11 +202,8 @@ export function AddCustomerDialog({ open, onClose, onCreated, userRole = "owner"
     onCloseRef.current?.();
   }
 
-  if (!mounted || !open) return null;
+  if (!mounted || !open || !customer) return null;
 
-  const displayLimit = limitDigits
-    ? groupFormatter.format(Number(limitDigits))
-    : "";
   const limitPreview = formatIDR(Number(limitDigits || 0));
   const nameErrorId = `${baseId}-name-error`;
   const phoneErrorId = `${baseId}-phone-error`;
@@ -240,20 +225,20 @@ export function AddCustomerDialog({ open, onClose, onCreated, userRole = "owner"
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
-        data-testid="add-customer-dialog"
+        data-testid="edit-customer-dialog"
         className="w-full max-w-lg glass-card rounded-2xl border border-white/40 dark:border-white/10 shadow-xl p-5 sm:p-6 animate-fadeIn bg-white/95 dark:bg-[#1a1625]/95"
       >
         <h2
           id={titleId}
           className="text-base font-bold text-gray-900 dark:text-white"
         >
-          Tambah pelanggan baru
+          Edit pelanggan
         </h2>
         <p
           id={descriptionId}
           className="mt-2 text-sm text-gray-600 dark:text-gray-300"
         >
-          Lengkapi data pelanggan untuk mulai mencatat kasbon mereka.
+          Ubah data pelanggan {customer.name}.
         </p>
 
         <form onSubmit={handleSubmit} noValidate className="mt-5 space-y-4">
@@ -270,7 +255,6 @@ export function AddCustomerDialog({ open, onClose, onCreated, userRole = "owner"
                 name="name"
                 type="text"
                 required
-                autoFocus
                 value={name}
                 onChange={(event) => {
                   setName(event.target.value);
@@ -295,7 +279,6 @@ export function AddCustomerDialog({ open, onClose, onCreated, userRole = "owner"
             <div className="relative">
               <Phone className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
               <input
-                ref={phoneRef}
                 id={`${baseId}-phone`}
                 name="phoneNumber"
                 type="tel"
@@ -316,21 +299,19 @@ export function AddCustomerDialog({ open, onClose, onCreated, userRole = "owner"
             <FieldError id={phoneErrorId} message={errors.phone} />
           </div>
 
-          {/* Limit kredit awal — owner-only */}
-          {isOwner ? (
+          {/* Limit kredit */}
           <div>
             <label htmlFor={`${baseId}-limit`} className={authLabelClass}>
-              Limit kredit awal
+              Limit kredit
             </label>
             <div className="relative">
               <Wallet className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
               <input
-                ref={limitRef}
                 id={`${baseId}-limit`}
                 name="creditLimit"
                 type="text"
                 inputMode="numeric"
-                value={displayLimit}
+                value={limitDigits}
                 onChange={(event) => {
                   const digits = event.target.value
                     .replace(/\D/g, "")
@@ -358,7 +339,6 @@ export function AddCustomerDialog({ open, onClose, onCreated, userRole = "owner"
             </p>
             <FieldError id={limitErrorId} message={errors.limit} />
           </div>
-          ) : null}
 
           {formError ? <AuthError message={formError} /> : null}
 
@@ -379,7 +359,7 @@ export function AddCustomerDialog({ open, onClose, onCreated, userRole = "owner"
               {pending ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
               ) : null}
-              {pending ? "Menambahkan…" : "Tambah pelanggan"}
+              {pending ? "Menyimpan…" : "Simpan perubahan"}
             </button>
           </div>
         </form>

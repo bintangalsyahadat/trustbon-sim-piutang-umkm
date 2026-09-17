@@ -1,13 +1,20 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, UserPlus, X } from "lucide-react";
-import { AuthError, AuthSuccess, authInputClass } from "@/components/AuthUi";
+import { Loader2, Pencil, Plus, Search, Trash2, UserPlus, X } from "lucide-react";
+import { deleteCustomer } from "@/app/actions/customers";
+import { AuthError, authInputClass } from "@/components/AuthUi";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { GuardedLink } from "@/components/GuardedLink";
-import { RiskScoreBadge } from "@/components/dashboard/StatusBadge";
+import {
+  RiskScoreBadge,
+  TrustStatusBadge,
+} from "@/components/dashboard/StatusBadge";
+import { useToast } from "@/components/Toast";
 import { formatIDR } from "@/lib/format";
 import { AddCustomerDialog } from "./AddCustomerDialog";
+import { EditCustomerDialog } from "./EditCustomerDialog";
 
 const sectionCardClass =
   "glass-card rounded-2xl border border-white/40 dark:border-white/10 shadow-md p-5 sm:p-6";
@@ -28,16 +35,27 @@ const TABLE_BODY_CELL_CLASSES = "px-5 sm:px-6 py-3.5";
 const detailLinkClass =
   "inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-violet-200 dark:border-violet-500/25 bg-violet-50/70 dark:bg-violet-500/10 text-violet-700 dark:text-violet-300 text-xs font-semibold hover:bg-violet-100 dark:hover:bg-violet-500/20 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#1a1625]";
 
+const iconButtonClass =
+  "inline-flex items-center justify-center w-8 h-8 rounded-lg transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#1a1625]";
+
 /**
- * Owner customer list: header CTA, client-side search, and a table of
- * customers with limit, active debt and risk score. Successful additions are
- * reported through the notice area; the add form lives in `AddCustomerDialog`.
+ * Customer list: header CTA, client-side search, table with actions.
+ * Owner sees Edit/Delete buttons; Kasir sees read-only list.
  */
-export function CustomerManagement({ customers, loadError = null }) {
+export function CustomerManagement({
+  customers,
+  userRole = "owner",
+  loadError = null,
+}) {
   const router = useRouter();
+  const toast = useToast();
   const [query, setQuery] = useState("");
-  const [notice, setNotice] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [pending, startTransition] = useTransition();
+
+  const isOwner = userRole === "owner";
 
   const normalizedQuery = query.trim().toLowerCase();
   const filtered = useMemo(() => {
@@ -50,11 +68,33 @@ export function CustomerManagement({ customers, loadError = null }) {
   }, [customers, normalizedQuery]);
 
   function handleCreated() {
-    setNotice({
-      type: "success",
-      message: "Pelanggan baru berhasil ditambahkan.",
-    });
+    toast.success("Pelanggan baru berhasil ditambahkan.");
     router.refresh();
+  }
+
+  function handleUpdated() {
+    toast.success("Data pelanggan berhasil diperbarui.");
+    router.refresh();
+  }
+
+  function handleDeleteConfirm() {
+    if (pending || !deleteTarget) return;
+    startTransition(async () => {
+      try {
+        const res = await deleteCustomer({ id: deleteTarget.id });
+        if (res?.ok) {
+          toast.success(`Pelanggan ${deleteTarget.name} berhasil dihapus.`);
+          setDeleteTarget(null);
+          router.refresh();
+        } else {
+          toast.error(res?.error ?? "Gagal menghapus pelanggan.");
+          setDeleteTarget(null);
+        }
+      } catch {
+        toast.error("Gagal menghapus pelanggan. Silakan coba lagi.");
+        setDeleteTarget(null);
+      }
+    });
   }
 
   const isEmpty = customers.length === 0;
@@ -104,15 +144,12 @@ export function CustomerManagement({ customers, loadError = null }) {
         ) : null}
       </div>
 
-      {/* Notice area */}
-      <div className="mt-5 space-y-2">
-        <AuthError
-          message={notice?.type === "error" ? notice.message : loadError}
-        />
-        <AuthSuccess
-          message={notice?.type === "success" ? notice.message : null}
-        />
-      </div>
+      {/* Load error */}
+      {loadError ? (
+        <div className="mt-5">
+          <AuthError message={loadError} />
+        </div>
+      ) : null}
 
       {!isEmpty ? (
         <p className="mt-4 text-xs text-gray-500 dark:text-gray-400 tabular-nums">
@@ -163,7 +200,7 @@ export function CustomerManagement({ customers, loadError = null }) {
           <div className="overflow-x-auto">
             <table
               data-testid="customer-table"
-              className="w-full min-w-[680px] text-sm"
+              className="w-full min-w-[720px] text-sm"
             >
               <thead>
                 <tr className="border-b border-gray-200/70 dark:border-white/10 text-left">
@@ -178,6 +215,9 @@ export function CustomerManagement({ customers, loadError = null }) {
                   </th>
                   <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
                     Skor Risiko
+                  </th>
+                  <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
+                    Status
                   </th>
                   <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
                     <span className="sr-only">Aksi</span>
@@ -210,17 +250,44 @@ export function CustomerManagement({ customers, loadError = null }) {
                       {formatIDR(customer.activeDebt)}
                     </td>
                     <td className={TABLE_BODY_CELL_CLASSES}>
-                      <RiskScoreBadge value={customer.riskScore} />
+                      <RiskScoreBadge value={customer.riskScore} trustStatus={customer.trustStatus} />
+                    </td>
+                    <td className={TABLE_BODY_CELL_CLASSES}>
+                      <TrustStatusBadge value={customer.trustStatus} />
                     </td>
                     <td className={`${TABLE_BODY_CELL_CLASSES} text-right`}>
-                      <GuardedLink
-                        href={`/dashboard/pelanggan/${customer.id}`}
-                        aria-label={`Lihat detail ${customer.name}`}
-                        data-testid="customer-detail-link"
-                        className={detailLinkClass}
-                      >
-                        Detail
-                      </GuardedLink>
+                      <div className="flex items-center justify-end gap-1">
+                        {isOwner ? (
+                          <>
+                            <button
+                              type="button"
+                              aria-label={`Edit ${customer.name}`}
+                              onClick={() => setEditTarget(customer)}
+                              className={`${iconButtonClass} text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-white/5`}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              aria-label={`Hapus ${customer.name}`}
+                              onClick={() => setDeleteTarget(customer)}
+                              className={`${iconButtonClass} text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10`}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        ) : null}
+                        {isOwner ? (
+                          <GuardedLink
+                            href={`/dashboard/pelanggan/${customer.id}`}
+                            aria-label={`Lihat detail ${customer.name}`}
+                            data-testid="customer-detail-link"
+                            className={detailLinkClass}
+                          >
+                            Detail
+                          </GuardedLink>
+                        ) : null}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -230,12 +297,48 @@ export function CustomerManagement({ customers, loadError = null }) {
         </section>
       )}
 
-      {/* Remount on open so the form always starts from a clean state. */}
+      {/* Add dialog */}
       <AddCustomerDialog
         key={dialogOpen ? "add-customer-open" : "add-customer-closed"}
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onCreated={handleCreated}
+        userRole={userRole}
+      />
+
+      {/* Edit dialog */}
+      <EditCustomerDialog
+        key={editTarget ? `edit-customer-${editTarget.id}` : "edit-customer-closed"}
+        open={!!editTarget}
+        onClose={() => setEditTarget(null)}
+        onUpdated={handleUpdated}
+        customer={editTarget}
+      />
+
+      {/* Delete confirmation */}
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Hapus pelanggan"
+        description={
+          deleteTarget
+            ? `Yakin ingin menghapus "${deleteTarget.name}"? Semua data transaksi dan riwayat pelanggan ini akan dihapus permanen.`
+            : ""
+        }
+        actions={[
+          {
+            label: pending ? "Menghapus…" : "Hapus",
+            tone: "danger",
+            loading: pending,
+            onClick: handleDeleteConfirm,
+          },
+          {
+            label: "Batal",
+            tone: "neutral",
+            onClick: () => setDeleteTarget(null),
+          },
+        ]}
+        onDismiss={() => !pending && setDeleteTarget(null)}
+        dismissible={!pending}
       />
     </div>
   );
