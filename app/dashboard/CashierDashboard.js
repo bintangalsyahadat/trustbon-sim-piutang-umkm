@@ -4,7 +4,7 @@ import { StatCard } from "@/components/dashboard/StatCard";
 import { SectionHeading } from "@/components/dashboard/SectionHeading";
 import { PaymentStatusBadge } from "@/components/dashboard/StatusBadge";
 import { getCashierDashboardData } from "@/lib/dashboard-dummy";
-import { formatIDR } from "@/lib/format";
+import { businessPrefix, formatIDR, formatTransactionNumber } from "@/lib/format";
 
 const PRIMARY_BUTTON_CLASSES =
   "inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-violet-500 hover:bg-violet-600 text-white text-sm font-semibold shadow-md shadow-violet-500/25 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500";
@@ -25,6 +25,10 @@ const TABLE_BODY_CELL_CLASSES = "px-5 sm:px-6 py-3.5";
  */
 export function CashierDashboard({ userName, businessName }) {
   const data = getCashierDashboardData();
+
+  const prefix = businessPrefix(businessName);
+  const now = new Date();
+  const period = now.getFullYear() * 100 + (now.getMonth() + 1);
 
   return (
     <div className="max-w-6xl mx-auto animate-fadeIn">
@@ -89,6 +93,9 @@ export function CashierDashboard({ userName, businessName }) {
             <thead>
               <tr className="border-b border-gray-200/70 dark:border-white/10 text-left">
                 <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
+                  No.
+                </th>
+                <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
                   Pelanggan
                 </th>
                 <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
@@ -105,6 +112,9 @@ export function CashierDashboard({ userName, businessName }) {
                   key={transaction.id}
                   className="border-b border-gray-100/80 dark:border-white/5 last:border-b-0 hover:bg-violet-50/60 dark:hover:bg-white/5 transition-colors"
                 >
+                  <td className={`${TABLE_BODY_CELL_CLASSES} tabular-nums text-xs text-gray-500 dark:text-gray-400`}>
+                    {formatTransactionNumber(period, transaction.sequenceNumber, prefix)}
+                  </td>
                   <td
                     className={`${TABLE_BODY_CELL_CLASSES} font-semibold text-gray-900 dark:text-white`}
                   >

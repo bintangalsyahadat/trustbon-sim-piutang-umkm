@@ -16,6 +16,8 @@ const TONE_CLASSES = {
     "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/25",
   neutral:
     "bg-gray-100 text-gray-600 border-gray-300 dark:bg-white/10 dark:text-gray-300 dark:border-white/15",
+  violet:
+    "bg-violet-100 text-violet-700 border-violet-300 dark:bg-violet-500/15 dark:text-violet-300 dark:border-violet-500/25",
 };
 
 export function Badge({ tone = "neutral", children }) {
@@ -31,9 +33,10 @@ export function Badge({ tone = "neutral", children }) {
 
 // Transaction.paymentStatus (RecordStatus)
 const PAYMENT_STATUS_MAP = {
-  draft: { label: "Menunggu konfirmasi", tone: "amber" },
+  draft: { label: "Draft", tone: "neutral" },
+  need_approval: { label: "Menunggu Persetujuan", tone: "amber" },
   confirmed: { label: "Terkonfirmasi", tone: "emerald" },
-  cancelled: { label: "Dibatalkan", tone: "rose" },
+  cancelled: { label: "Dibatalkan", tone: "neutral" },
 };
 
 // Customer.trustStatus (TrustStatus)
@@ -61,6 +64,18 @@ export function TrustStatusBadge({ value }) {
   return <Badge tone={config.tone}>{config.label}</Badge>;
 }
 
+// Transaction.status (PaymentProgress)
+const PAYMENT_PROGRESS_MAP = {
+  unpaid: { label: "Belum Dibayar", tone: "rose" },
+  partial: { label: "Sebagian", tone: "amber" },
+  paid: { label: "Lunas", tone: "emerald" },
+};
+
+export function PaymentProgressBadge({ value }) {
+  const config = PAYMENT_PROGRESS_MAP[value] ?? fallbackConfig(value);
+  return <Badge tone={config.tone}>{config.label}</Badge>;
+}
+
 // Customer.riskScore risk bands: 0–39 low (emerald), 40–69 medium (amber),
 // 70–100 high (rose). Non-finite or out-of-range scores render a neutral "—".
 export function RiskScoreBadge({ value, trustStatus }) {
@@ -80,3 +95,4 @@ export function RiskScoreBadge({ value, trustStatus }) {
         : { tone: "rose", label: "Risiko Tinggi" };
   return <Badge tone={band.tone}>{`${rounded} · ${band.label}`}</Badge>;
 }
+

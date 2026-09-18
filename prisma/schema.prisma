@@ -34,14 +34,12 @@ enum TrustStatus {
   at_risk
 }
 
-enum TransactionType {
-  credit
-  adjustment
-}
-
-// Dipakai oleh TRANSACTIONS.payment_status dan PAYMENTS.status
+// Shared lifecycle status for Transaction.paymentStatus and Payment.status
+// Transaction: draft → confirmed/cancelled, or draft → need_approval → confirmed/cancelled
+// Payment: draft → confirmed/cancelled
 enum RecordStatus {
   draft
+  need_approval
   confirmed
   cancelled
 }
@@ -114,16 +112,21 @@ model Transaction {
   id              Int             @id @default(autoincrement())
   businessId      Int
   business        Business        @relation(fields: [businessId], references: [id])
+  sequenceNumber  Int
+  period          Int
   customerId      Int
   customer        Customer        @relation(fields: [customerId], references: [id])
   transactionDate DateTime        @default(now())
-  type            TransactionType @default(credit)
   amount          Decimal
   dueDate         DateTime
   paymentStatus   RecordStatus    @default(draft)
   status          PaymentProgress @default(unpaid)
+  note            String?
+  cancelledNote   String?
 
   payments Payment[]
+
+  @@unique([businessId, period, sequenceNumber])
 }
 
 model Payment {

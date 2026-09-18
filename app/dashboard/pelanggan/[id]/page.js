@@ -3,7 +3,7 @@ import { ArrowLeft, Banknote, Receipt, Scale, Wallet } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireOwner } from "@/lib/session-guards";
 import { getActiveDebtByCustomer } from "@/lib/customer-debt";
-import { formatIDR } from "@/lib/format";
+import { businessPrefix, formatIDR, formatTransactionNumber } from "@/lib/format";
 import { GuardedLink } from "@/components/GuardedLink";
 import { StatCard } from "@/components/dashboard/StatCard";
 import {
@@ -11,6 +11,7 @@ import {
   RiskScoreBadge,
   TrustStatusBadge,
 } from "@/components/dashboard/StatusBadge";
+
 
 export const metadata = { title: "Detail Pelanggan — TrustBon" };
 
@@ -58,10 +59,13 @@ export default async function CustomerDetailPage({ params }) {
       orderBy: { transactionDate: "desc" },
       select: {
         id: true,
+        period: true,
+        sequenceNumber: true,
         amount: true,
         transactionDate: true,
         paymentStatus: true,
         status: true,
+        note: true,
       },
     }),
   ]);
@@ -73,9 +77,15 @@ export default async function CustomerDetailPage({ params }) {
   // Format dates and amounts on the server; pass label strings only.
   const transactionItems = transactions.map((transaction) => ({
     id: transaction.id,
+    transactionNumber: formatTransactionNumber(
+      transaction.period,
+      transaction.sequenceNumber,
+      businessPrefix(member.business?.name)
+    ),
     dateLabel: dateFormatter.format(transaction.transactionDate),
     amountLabel: formatIDR(transaction.amount),
     paymentStatus: transaction.paymentStatus,
+    note: transaction.note ?? null,
   }));
 
   return (
@@ -127,7 +137,7 @@ export default async function CustomerDetailPage({ params }) {
             Riwayat transaksi
           </h2>
           <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
-            Seluruh kasbon dan penyesuaian untuk pelanggan ini.
+            Seluruh kasbon untuk pelanggan ini.
           </p>
         </div>
 
@@ -149,10 +159,16 @@ export default async function CustomerDetailPage({ params }) {
               <thead>
                 <tr className="border-b border-gray-200/70 dark:border-white/10 text-left">
                   <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
+                    No.
+                  </th>
+                  <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
                     Tanggal
                   </th>
                   <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
                     Nominal
+                  </th>
+                  <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
+                    Catatan
                   </th>
                   <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
                     Status
@@ -165,6 +181,9 @@ export default async function CustomerDetailPage({ params }) {
                     key={transaction.id}
                     className="border-b border-gray-100/80 dark:border-white/5 last:border-b-0 hover:bg-violet-50/60 dark:hover:bg-white/5 transition-colors"
                   >
+                    <td className={`${TABLE_BODY_CELL_CLASSES} tabular-nums text-xs text-gray-500 dark:text-gray-400`}>
+                      {transaction.transactionNumber}
+                    </td>
                     <td
                       className={`${TABLE_BODY_CELL_CLASSES} tabular-nums text-gray-700 dark:text-gray-300`}
                     >
@@ -174,6 +193,11 @@ export default async function CustomerDetailPage({ params }) {
                       className={`${TABLE_BODY_CELL_CLASSES} tabular-nums text-gray-700 dark:text-gray-300`}
                     >
                       {transaction.amountLabel}
+                    </td>
+                    <td className={`${TABLE_BODY_CELL_CLASSES} max-w-[150px]`}>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 truncate" title={transaction.note || ""}>
+                        {transaction.note || <span className="text-gray-400 dark:text-gray-500">—</span>}
+                      </p>
                     </td>
                     <td className={TABLE_BODY_CELL_CLASSES}>
                       <PaymentStatusBadge value={transaction.paymentStatus} />
