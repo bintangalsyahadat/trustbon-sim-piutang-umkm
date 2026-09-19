@@ -277,16 +277,14 @@ export function CustomerManagement({
                             </button>
                           </>
                         ) : null}
-                        {isOwner ? (
-                          <GuardedLink
-                            href={`/dashboard/pelanggan/${customer.id}`}
-                            aria-label={`Lihat detail ${customer.name}`}
-                            data-testid="customer-detail-link"
-                            className={detailLinkClass}
-                          >
-                            Detail
-                          </GuardedLink>
-                        ) : null}
+                        <GuardedLink
+                          href={`/dashboard/pelanggan/${customer.id}`}
+                          aria-label={`Lihat detail ${customer.name}`}
+                          data-testid="customer-detail-link"
+                          className={detailLinkClass}
+                        >
+                          Detail
+                        </GuardedLink>
                       </div>
                     </td>
                   </tr>

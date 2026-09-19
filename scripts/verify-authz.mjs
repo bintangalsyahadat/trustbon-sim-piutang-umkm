@@ -680,6 +680,16 @@ async function jarFor(email) {
   return jars.get(email);
 }
 
+/** Next period-1 transaction sequence number for a fixture business. */
+async function nextTransactionSequence(businessId) {
+  const last = await prisma.transaction.findFirst({
+    where: { businessId },
+    orderBy: { sequenceNumber: "desc" },
+    select: { sequenceNumber: true },
+  });
+  return (last?.sequenceNumber ?? 0) + 1;
+}
+
 async function main() {
   console.log(`TrustBon authz verification harness`);
   console.log(`  node ${process.version} · base ${BASE}`);
@@ -2117,18 +2127,351 @@ async function main() {
     },
   );
 
-  // ── 37. Cashiers cannot open the owner-only detail page ───────────────────
+  // ── 37. 4.5: detail page is cashier-readable, owner-editable ──────────────
   await scenario(
     37,
-    "cashier GET the customer detail page is redirected off the owner-only route",
+    "cashier can read the customer detail page (read-only); owner gets the edit control",
     async () => {
       assert(fx.customerA1, "fx.customerA1 was never set by the create scenario");
+
+      // One transaction makes the history table render for both roles.
+      await prisma.transaction.create({
+        data: {
+          businessId: fx.businessA.id,
+          customerId: fx.customerA1,
+          period: 1,
+          sequenceNumber: await nextTransactionSequence(fx.businessA.id),
+          amount: 500000,
+          transactionDate: new Date(),
+          dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          paymentStatus: "confirmed",
+          status: "unpaid",
+          note: "E2E detail read-only fixture",
+        },
+      });
+
       const cashier = await jarFor(fx.activeA2.email);
-      return await assertCashierRedirected(
-        `/dashboard/pelanggan/${fx.customerA1}`,
-        cashier,
-        "customer detail",
+      const owner = await jarFor(fx.ownerA.email);
+
+      const cashierRes = await getPage(`/dashboard/pelanggan/${fx.customerA1}`, cashier);
+      assertEq(
+        cashierRes.status,
+        200,
+        "cashier GET /dashboard/pelanggan/<id> (4.5 read access)",
       );
+      const cashierBody = cashierRes.body.replace(/\u00a0/g, " ");
+      for (const marker of [
+        'data-testid="customer-profile-avatar"',
+        'data-testid="customer-detail-risk-score"',
+        'data-testid="customer-detail-trust-status"',
+        'data-testid="customer-detail-credit-limit"',
+        "Riwayat Transaksi",
+        'data-testid="transaction-timing"',
+        'data-testid="score-history-empty"',
+      ]) {
+        assert(
+          cashierBody.includes(marker),
+          `cashier detail page is missing ${JSON.stringify(marker)}`,
+        );
+      }
+      assert(
+        !cashierBody.includes('data-testid="edit-credit-limit"'),
+        "cashier detail page leaked the owner-only edit-credit-limit control",
+      );
+
+      const ownerRes = await getPage(`/dashboard/pelanggan/${fx.customerA1}`, owner);
+      assertEq(ownerRes.status, 200, "owner GET /dashboard/pelanggan/<id>");
+      assert(
+        ownerRes.body.includes('data-testid="edit-credit-limit"'),
+        "owner detail page is missing the edit-credit-limit control",
+      );
+
+      return "37 cashier read-only 200 vs owner 200 with edit control";
+    },
+  );
+
+  // ── 38. 4.5: score-history trend chart and its empty state ────────────────
+  await scenario(
+    38,
+    "score history renders the trend chart and its 62 to 55 to 71 sequence",
+    async () => {
+      const customer = await prisma.customer.create({
+        data: {
+          businessId: fx.businessA.id,
+          name: "E2E Pelanggan Skor",
+          phoneNumber: "081200000010",
+          creditLimit: 2000000,
+        },
+      });
+      const now = Date.now();
+      const daysAgo = (days) => new Date(now - days * 24 * 60 * 60 * 1000);
+      await prisma.scoreHistory.createMany({
+        data: [
+          {
+            customerId: customer.id,
+            score: 62,
+            trustStatus: "recovering",
+            recordedAt: daysAgo(30),
+          },
+          {
+            customerId: customer.id,
+            score: 55,
+            trustStatus: "at_risk",
+            recordedAt: daysAgo(20),
+          },
+          {
+            customerId: customer.id,
+            score: 71,
+            trustStatus: "recovering",
+            recordedAt: daysAgo(10),
+          },
+        ],
+      });
+
+      const owner = await jarFor(fx.ownerA.email);
+      const res = await getPage(`/dashboard/pelanggan/${customer.id}`, owner);
+      assertEq(res.status, 200, "owner GET score-history fixture detail");
+      const body = res.body.replace(/\u00a0/g, " ");
+      assert(
+        body.includes('data-testid="score-history-chart"'),
+        "score-history-chart is missing for a customer with history",
+      );
+      assert(
+        body.includes("62 \u2192 55 \u2192 71"),
+        "score-history chart is missing the 62 -> 55 -> 71 sequence",
+      );
+      assert(
+        body.includes("Skor terbaru 71"),
+        'score-history caption is missing "Skor terbaru 71"',
+      );
+      assert(
+        body.includes("perubahan +9 poin sejak"),
+        "score-history caption is missing the +9 delta",
+      );
+
+      // A customer with zero history rows shows the empty-state box instead.
+      const emptyRes = await getPage(`/dashboard/pelanggan/${fx.customerA1}`, owner);
+      assertEq(emptyRes.status, 200, "owner GET zero-history customer detail");
+      assert(
+        emptyRes.body.includes('data-testid="score-history-empty"'),
+        "score-history-empty is missing for a customer with zero history rows",
+      );
+      assert(
+        !emptyRes.body.includes('data-testid="score-history-chart"'),
+        "zero-history customer unexpectedly rendered the score-history chart",
+      );
+
+      return "38 chart with 62 -> 55 -> 71 + Skor terbaru 71 + +9 delta; zero-history empty box";
+    },
+  );
+
+  // ── 39. 4.5: transaction timing labels and payment progress ───────────────
+  await scenario(
+    39,
+    "transaction history renders settled/overdue/future/cancelled timing labels",
+    async () => {
+      const customer = await prisma.customer.create({
+        data: {
+          businessId: fx.businessA.id,
+          name: "E2E Pelanggan Arus",
+          phoneNumber: "081200000011",
+          creditLimit: 3000000,
+        },
+      });
+      const now = Date.now();
+      const daysFromNow = (days) => new Date(now + days * 24 * 60 * 60 * 1000);
+      const baseTransaction = (extra) => ({
+        businessId: fx.businessA.id,
+        customerId: customer.id,
+        period: 1,
+        paymentStatus: "confirmed",
+        transactionDate: daysFromNow(-20),
+        ...extra,
+      });
+
+      // (i) settled: the last confirmed payment lands 6 days after the due date.
+      const settled = await prisma.transaction.create({
+        data: baseTransaction({
+          sequenceNumber: await nextTransactionSequence(fx.businessA.id),
+          amount: 400000,
+          transactionDate: daysFromNow(-30),
+          dueDate: daysFromNow(-10),
+          status: "paid",
+          note: "E2E timing late-settled",
+        }),
+      });
+      await prisma.payment.create({
+        data: {
+          transactionId: settled.id,
+          paymentDate: daysFromNow(-4),
+          amountPaid: 400000,
+          status: "confirmed",
+        },
+      });
+
+      // (ii) unsettled, past due, partially paid -> "Terlambat 5 hari".
+      await prisma.transaction.create({
+        data: baseTransaction({
+          sequenceNumber: await nextTransactionSequence(fx.businessA.id),
+          amount: 600000,
+          dueDate: daysFromNow(-5),
+          status: "partial",
+          note: "E2E timing overdue",
+        }),
+      });
+
+      // (iii) unsettled and not yet due -> "Belum jatuh tempo".
+      await prisma.transaction.create({
+        data: baseTransaction({
+          sequenceNumber: await nextTransactionSequence(fx.businessA.id),
+          amount: 700000,
+          transactionDate: daysFromNow(-1),
+          dueDate: daysFromNow(7),
+          status: "unpaid",
+          note: "E2E timing future",
+        }),
+      });
+
+      // (iv) cancelled -> neutral em dash, no settlement judgement.
+      await prisma.transaction.create({
+        data: baseTransaction({
+          sequenceNumber: await nextTransactionSequence(fx.businessA.id),
+          amount: 800000,
+          transactionDate: daysFromNow(-14),
+          dueDate: daysFromNow(-7),
+          paymentStatus: "cancelled",
+          status: "unpaid",
+          note: "E2E timing cancelled",
+        }),
+      });
+
+      const owner = await jarFor(fx.ownerA.email);
+      const res = await getPage(`/dashboard/pelanggan/${customer.id}`, owner);
+      assertEq(res.status, 200, "owner GET transaction-history fixture detail");
+      const body = res.body.replace(/\u00a0/g, " ");
+      const timingCells = body.match(/data-testid="transaction-timing"/g) || [];
+      assertEq(timingCells.length, 4, "transaction-timing cells rendered");
+
+      const rowFor = (note) => {
+        const row = body.split("<tr").find((part) => part.includes(note));
+        assert(row, `transaction row not found for note ${JSON.stringify(note)}`);
+        return row;
+      };
+
+      const settledRow = rowFor("E2E timing late-settled");
+      assert(
+        settledRow.includes("Telat 6 hari"),
+        'late-settled row is missing "Telat 6 hari"',
+      );
+
+      const overdueRow = rowFor("E2E timing overdue");
+      assert(
+        overdueRow.includes("Terlambat 5 hari"),
+        'overdue row is missing "Terlambat 5 hari"',
+      );
+      assert(
+        overdueRow.includes("Sebagian"),
+        'overdue (partial) row is missing the "Sebagian" progress badge',
+      );
+
+      const futureRow = rowFor("E2E timing future");
+      assert(
+        futureRow.includes("Belum jatuh tempo"),
+        'future row is missing "Belum jatuh tempo"',
+      );
+      assert(
+        futureRow.includes("Belum Dibayar"),
+        'future (unpaid) row is missing the "Belum Dibayar" progress badge',
+      );
+
+      const cancelledRow = rowFor("E2E timing cancelled");
+      assert(
+        cancelledRow.includes("\u2014"),
+        'cancelled row is missing the neutral "\u2014" timing',
+      );
+      assert(
+        cancelledRow.includes("Dibatalkan"),
+        'cancelled row is missing the "Dibatalkan" status badge',
+      );
+
+      return '39 timing: "Telat 6 hari", "Terlambat 5 hari", "Belum jatuh tempo", "\u2014"; progress: Sebagian, Belum Dibayar, Dibatalkan';
+    },
+  );
+
+  // ── 40. 4.5: credit-limit updates are owner-only and validated ────────────
+  await scenario(
+    40,
+    "updateCustomer credit limit is owner-only and rejects invalid limits",
+    async () => {
+      const customer = await prisma.customer.create({
+        data: {
+          businessId: fx.businessA.id,
+          name: "E2E Pelanggan Limit",
+          phoneNumber: "081200000012",
+          creditLimit: 1000000,
+        },
+      });
+      const limitInDb = async () => {
+        const row = await prisma.customer.findUnique({
+          where: { id: customer.id },
+          select: { creditLimit: true },
+        });
+        return Number(row.creditLimit);
+      };
+      const payload = (creditLimit) => ({
+        id: customer.id,
+        name: customer.name,
+        phoneNumber: customer.phoneNumber,
+        creditLimit,
+      });
+
+      const cashier = await jarFor(fx.activeA2.email);
+      const owner = await jarFor(fx.ownerA.email);
+
+      const cashierRun = await mustAction(cashier, "updateCustomer", [payload(2500000)]);
+      assert(
+        cashierRun.parsed.ok === false,
+        `cashier updateCustomer was accepted: ${JSON.stringify(cashierRun.parsed)}`,
+      );
+      assertEq(
+        cashierRun.parsed.error,
+        CUSTOMER_ERR.NOT_OWNER,
+        "cashier updateCustomer error",
+      );
+      assertEq(
+        await limitInDb(),
+        1000000,
+        "cashier updateCustomer must not change the limit",
+      );
+
+      const ownerRun = await mustAction(owner, "updateCustomer", [payload(2500000)]);
+      assert(
+        ownerRun.parsed.ok === true,
+        `owner updateCustomer returned ${JSON.stringify(ownerRun.parsed)}`,
+      );
+      assertEq(await limitInDb(), 2500000, "owner updateCustomer persists the new limit");
+
+      // 0 stays valid on purpose: this action is shared with the 4.1 edit dialog,
+      // where a 0 limit is a legitimate configuration.
+      for (const [label, value] of [
+        ["negative", -1],
+        ["non-numeric", "abc"],
+        ["above the 1e9 cap", 1000000001],
+      ]) {
+        const run = await mustAction(owner, "updateCustomer", [payload(value)]);
+        assert(
+          run.parsed.ok === false,
+          `${label} credit limit was accepted: ${JSON.stringify(run.parsed)}`,
+        );
+        assertEq(run.parsed.error, CUSTOMER_ERR.LIMIT, `${label} credit limit error`);
+      }
+      assertEq(
+        await limitInDb(),
+        2500000,
+        "rejected limits must not change the stored value",
+      );
+
+      return "40 cashier refused (NOT_OWNER, DB unchanged); owner 1.0M -> 2.5M persisted; negative / non-numeric / >1e9 refused (0 allowed by design)";
     },
   );
 

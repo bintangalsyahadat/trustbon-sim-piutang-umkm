@@ -12,6 +12,7 @@
     "verify:transaction-cancel": "node scripts/verify-transaction-cancel.mjs",
     "verify:approval": "node scripts/verify-approval.mjs",
     "verify:risk-score": "node scripts/verify-risk-score.mjs",
+    "verify:authz": "node scripts/verify-authz.mjs",
     "postinstall": "prisma generate || exit 0"
   },
   "dependencies": {
