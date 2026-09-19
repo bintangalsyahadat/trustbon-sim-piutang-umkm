@@ -3,7 +3,7 @@ import { GuardedLink } from "@/components/GuardedLink";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { SectionHeading } from "@/components/dashboard/SectionHeading";
 import { PaymentStatusBadge } from "@/components/dashboard/StatusBadge";
-import { getCashierDashboardData } from "@/lib/dashboard-dummy";
+import { getCashierDashboardData } from "@/lib/dashboard-data";
 import { businessPrefix, formatIDR, formatTransactionNumber } from "@/lib/format";
 
 const PRIMARY_BUTTON_CLASSES =
@@ -20,12 +20,13 @@ const TABLE_BODY_CELL_CLASSES = "px-5 sm:px-6 py-3.5";
 /**
  * Cashier home: today's activity at a glance — the two daily actions
  * (input kasbon, input pembayaran), three metrics and the latest
- * transactions. Server component; metrics come from the dummy data
- * module until the real data layer lands.
+ * transactions. Server component; metrics come from real DB queries.
  */
-export function CashierDashboard({ userName, businessName }) {
-  const data = getCashierDashboardData();
+export async function CashierDashboard({ member }) {
+  const data = await getCashierDashboardData(member.businessId);
 
+  const businessName = member.business?.name ?? "Bisnis Anda";
+  const userName = member.name;
   const prefix = businessPrefix(businessName);
   const now = new Date();
   const period = now.getFullYear() * 100 + (now.getMonth() + 1);
@@ -86,52 +87,66 @@ export function CashierDashboard({ userName, businessName }) {
       <section className="mt-10">
         <SectionHeading
           title="Transaksi terbaru"
-          description="5 transaksi kasbon terakhir yang tercatat hari ini."
+          description="5 transaksi kasbon terakhir yang tercatat."
         />
         <div className="mt-4 glass-panel rounded-2xl border border-white/60 dark:border-white/20 shadow-lg overflow-x-auto">
-          <table className="w-full min-w-[560px] text-sm">
-            <thead>
-              <tr className="border-b border-gray-200/70 dark:border-white/10 text-left">
-                <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
-                  No.
-                </th>
-                <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
-                  Pelanggan
-                </th>
-                <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
-                  Nominal
-                </th>
-                <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.recentTransactions.map((transaction) => (
-                <tr
-                  key={transaction.id}
-                  className="border-b border-gray-100/80 dark:border-white/5 last:border-b-0 hover:bg-violet-50/60 dark:hover:bg-white/5 transition-colors"
-                >
-                  <td className={`${TABLE_BODY_CELL_CLASSES} tabular-nums text-xs text-gray-500 dark:text-gray-400`}>
-                    {formatTransactionNumber(period, transaction.sequenceNumber, prefix)}
-                  </td>
-                  <td
-                    className={`${TABLE_BODY_CELL_CLASSES} font-semibold text-gray-900 dark:text-white`}
-                  >
-                    {transaction.customerName}
-                  </td>
-                  <td
-                    className={`${TABLE_BODY_CELL_CLASSES} tabular-nums text-gray-700 dark:text-gray-300`}
-                  >
-                    {formatIDR(transaction.amount)}
-                  </td>
-                  <td className={TABLE_BODY_CELL_CLASSES}>
-                    <PaymentStatusBadge value={transaction.paymentStatus} />
-                  </td>
+          {data.recentTransactions.length === 0 ? (
+            <div className="px-6 py-10 flex flex-col items-center text-center">
+              <div className="w-11 h-11 rounded-xl bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/15 text-gray-400 dark:text-gray-500 flex items-center justify-center">
+                <Receipt className="w-5 h-5" />
+              </div>
+              <p className="mt-3 text-sm font-bold text-gray-900 dark:text-white">
+                Belum ada transaksi
+              </p>
+              <p className="mt-1 max-w-sm text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                Transaksi kasbon yang dicatat akan muncul di sini.
+              </p>
+            </div>
+          ) : (
+            <table className="w-full min-w-[560px] text-sm">
+              <thead>
+                <tr className="border-b border-gray-200/70 dark:border-white/10 text-left">
+                  <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
+                    No.
+                  </th>
+                  <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
+                    Pelanggan
+                  </th>
+                  <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
+                    Nominal
+                  </th>
+                  <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
+                    Status
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {data.recentTransactions.map((transaction) => (
+                  <tr
+                    key={transaction.id}
+                    className="border-b border-gray-100/80 dark:border-white/5 last:border-b-0 hover:bg-violet-50/60 dark:hover:bg-white/5 transition-colors"
+                  >
+                    <td className={`${TABLE_BODY_CELL_CLASSES} tabular-nums text-xs text-gray-500 dark:text-gray-400`}>
+                      {formatTransactionNumber(period, transaction.sequenceNumber, prefix)}
+                    </td>
+                    <td
+                      className={`${TABLE_BODY_CELL_CLASSES} font-semibold text-gray-900 dark:text-white`}
+                    >
+                      {transaction.customerName}
+                    </td>
+                    <td
+                      className={`${TABLE_BODY_CELL_CLASSES} tabular-nums text-gray-700 dark:text-gray-300`}
+                    >
+                      {formatIDR(transaction.amount)}
+                    </td>
+                    <td className={TABLE_BODY_CELL_CLASSES}>
+                      <PaymentStatusBadge value={transaction.paymentStatus} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </section>
     </div>

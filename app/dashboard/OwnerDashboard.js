@@ -10,8 +10,11 @@ import { GuardedLink } from "@/components/GuardedLink";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { SectionHeading } from "@/components/dashboard/SectionHeading";
 import { InsightCard } from "@/components/dashboard/InsightCard";
-import { TrustStatusBadge } from "@/components/dashboard/StatusBadge";
-import { getOwnerDashboardData } from "@/lib/dashboard-dummy";
+import {
+  RiskScoreBadge,
+  TrustStatusBadge,
+} from "@/components/dashboard/StatusBadge";
+import { getOwnerDashboardData } from "@/lib/dashboard-data";
 import { formatIDR, formatPercent } from "@/lib/format";
 
 const SECONDARY_BUTTON_CLASSES =
@@ -23,12 +26,30 @@ const TABLE_HEAD_CELL_CLASSES =
 const TABLE_BODY_CELL_CLASSES = "px-5 sm:px-6 py-3.5";
 
 /**
+ * Placeholder insight cards — real insight logic will be wired separately
+ * via the LLM narrative insight feature (4.9 — Ringkasan Naratif Insight
+ * Dashboard). Do NOT replace these with computed data.
+ */
+const PLACEHOLDER_INSIGHTS = [
+  {
+    id: "insight-on-time",
+    text: "Pembayaran tepat waktu naik menjadi 82,4% minggu ini — mayoritas pelanggan melunasi kasbon sebelum jatuh tempo.",
+  },
+  {
+    id: "insight-overdue",
+    text: "3 pelanggan sudah melewati jatuh tempo lebih dari 7 hari; pertimbangkan mengirim pengingat WhatsApp hari ini.",
+  },
+];
+
+/**
  * Owner home: business-level health — receivables metrics, narrative
  * insights and the customers that need attention. Server component;
- * metrics come from the dummy data module until the real data layer lands.
+ * metrics come from real DB queries.
  */
-export function OwnerDashboard({ userName, businessName }) {
-  const data = getOwnerDashboardData();
+export async function OwnerDashboard({ member }) {
+  const data = await getOwnerDashboardData(member.businessId);
+
+  const businessName = member.business?.name ?? "Bisnis Anda";
 
   return (
     <div className="max-w-6xl mx-auto animate-fadeIn">
@@ -39,7 +60,7 @@ export function OwnerDashboard({ userName, businessName }) {
             {businessName}
           </h1>
           <p className="mt-1.5 text-sm text-gray-600 dark:text-gray-300">
-            Halo, {userName} — berikut kesehatan piutang bisnis Anda hari ini.
+            Halo, {member.name} — berikut kesehatan piutang bisnis Anda hari ini.
           </p>
         </div>
         <GuardedLink href="/dashboard/laporan" className={SECONDARY_BUTTON_CLASSES}>
@@ -60,7 +81,7 @@ export function OwnerDashboard({ userName, businessName }) {
           icon={Users}
           label="Pelanggan aktif"
           value={String(data.activeCustomers)}
-          hint="Memiliki kasbon berjalan"
+          hint="Total pelanggan terdaftar"
         />
         <StatCard
           icon={ShieldAlert}
@@ -71,19 +92,23 @@ export function OwnerDashboard({ userName, businessName }) {
         <StatCard
           icon={Clock}
           label="Pembayaran tepat waktu"
-          value={formatPercent(data.onTimePaymentPercent)}
-          hint="30 hari terakhir"
+          value={
+            data.onTimePaymentPercent === null
+              ? "—"
+              : formatPercent(data.onTimePaymentPercent)
+          }
+          hint="Dari transaksi yang sudah lunas"
         />
       </div>
 
-      {/* Narrative insights */}
+      {/* Narrative insights (placeholder — real logic via feature 4.9) */}
       <section className="mt-10">
         <SectionHeading
           title="Insight"
           description="Sorotan otomatis dari aktivitas piutang Anda."
         />
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {data.insights.map((insight) => (
+          {PLACEHOLDER_INSIGHTS.map((insight) => (
             <InsightCard key={insight.id}>{insight.text}</InsightCard>
           ))}
         </div>
@@ -110,7 +135,7 @@ export function OwnerDashboard({ userName, businessName }) {
               </p>
             </div>
           ) : (
-            <table className="w-full min-w-[560px] text-sm">
+            <table className="w-full min-w-[640px] text-sm">
               <thead>
                 <tr className="border-b border-gray-200/70 dark:border-white/10 text-left">
                   <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
@@ -121,6 +146,9 @@ export function OwnerDashboard({ userName, businessName }) {
                   </th>
                   <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
                     Status
+                  </th>
+                  <th scope="col" className={TABLE_HEAD_CELL_CLASSES}>
+                    Skor Risiko
                   </th>
                 </tr>
               </thead>
@@ -142,6 +170,12 @@ export function OwnerDashboard({ userName, businessName }) {
                     </td>
                     <td className={TABLE_BODY_CELL_CLASSES}>
                       <TrustStatusBadge value={customer.trustStatus} />
+                    </td>
+                    <td className={TABLE_BODY_CELL_CLASSES}>
+                      <RiskScoreBadge
+                        value={customer.riskScore}
+                        trustStatus={customer.trustStatus}
+                      />
                     </td>
                   </tr>
                 ))}
