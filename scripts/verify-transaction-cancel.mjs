@@ -780,8 +780,14 @@ async function main() {
   const jarKasirA = await jarFor(fx.kasirA.email);
 
   // ── 2. Owner cancels T_unpaid (legitimate) ────────────────────────────────
-  await scenario(1, "Owner cancels T_unpaid (confirmed, no payments) -> ok:true, cancelled + score row", async () => {
+  await scenario(1, "Owner cancels T_unpaid (confirmed, no payments) -> ok:true, cancelled + scoring no-op", async () => {
     const note = "Salah input dari kasir.";
+    const pre = await prisma.customer.findUnique({
+      where: { id: fx.tUnpaid.customerId },
+      select: { riskScore: true, trustStatus: true },
+    });
+    assertEq(pre.riskScore, 50, "pre riskScore");
+    assertEq(pre.trustStatus, "unrated", "pre trustStatus");
     const scoreBefore = await prisma.scoreHistory.count({
       where: { customerId: fx.tUnpaid.customerId },
     });
@@ -793,16 +799,22 @@ async function main() {
     assertEq(tx.cancelledNote, note, "T_unpaid cancelledNote");
     assertEq(tx.status, "unpaid", "T_unpaid repayment status untouched");
 
+    // Scoring counts only CONFIRMED transactions. Cancelling T_unpaid leaves this
+    // customer (whose only transaction it was) with ZERO confirmed history, so the
+    // scorer SKIPs: risk/trust stay put and no ScoreHistory row is appended.
+    const post = await prisma.customer.findUnique({
+      where: { id: fx.tUnpaid.customerId },
+      select: { riskScore: true, trustStatus: true },
+    });
+    assertEq(post.riskScore, pre.riskScore, "riskScore unchanged after cancel");
+    assertEq(post.trustStatus, pre.trustStatus, "trustStatus unchanged after cancel");
     const scoreAfter = await prisma.scoreHistory.count({
       where: { customerId: fx.tUnpaid.customerId },
     });
-    assert(
-      scoreAfter > scoreBefore,
-      `expected a new ScoreHistory row (before=${scoreBefore}, after=${scoreAfter})`,
-    );
+    assertEq(scoreAfter, scoreBefore, "no new ScoreHistory row after cancel");
     return (
       `ok:true error=none · paymentStatus=cancelled cancelledNote="${tx.cancelledNote}" ` +
-      `status=unpaid · ScoreHistory ${scoreBefore}->${scoreAfter}`
+      `status=unpaid · ScoreHistory ${scoreBefore}->${scoreAfter} (skip: zero confirmed history)`
     );
   });
 

@@ -389,8 +389,13 @@ export async function cancelTransaction({ transactionId, note } = {}) {
     },
   });
 
-  // Recalculate risk score after cancellation
-  await calculateRiskScore(tx.customerId);
+  // Recalculate risk score after cancellation. Best-effort: the cancellation
+  // is already committed, so a scoring failure must not fail the action.
+  try {
+    await calculateRiskScore(tx.customerId);
+  } catch (err) {
+    console.error("calculateRiskScore failed after cancellation:", err);
+  }
 
   revalidatePath("/dashboard/transaksi");
   revalidatePath("/dashboard/pelanggan");
@@ -484,7 +489,13 @@ export async function rejectTransaction({ transactionId, note } = {}) {
     },
   });
 
-  await calculateRiskScore(tx.customerId);
+  // Best-effort risk score recalculation after rejection: the rejection is
+  // already committed, so a scoring failure must not fail the action.
+  try {
+    await calculateRiskScore(tx.customerId);
+  } catch (err) {
+    console.error("calculateRiskScore failed after rejection:", err);
+  }
 
   revalidatePath("/dashboard/transaksi");
   revalidatePath("/dashboard/approval");

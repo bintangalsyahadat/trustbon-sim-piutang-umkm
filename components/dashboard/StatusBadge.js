@@ -76,8 +76,9 @@ export function PaymentProgressBadge({ value }) {
   return <Badge tone={config.tone}>{config.label}</Badge>;
 }
 
-// Customer.riskScore risk bands: 0–39 low (emerald), 40–69 medium (amber),
-// 70–100 high (rose). Non-finite or out-of-range scores render a neutral "—".
+// Customer.riskScore risk bands (higher score = safer): 80–100 low risk
+// (emerald), 50–79 medium (amber), 0–49 high (rose). Non-finite or
+// out-of-range scores render a neutral "—".
 export function RiskScoreBadge({ value, trustStatus }) {
   if (trustStatus === "unrated") {
     return <Badge tone="neutral">—</Badge>;
@@ -88,9 +89,9 @@ export function RiskScoreBadge({ value, trustStatus }) {
   }
   const rounded = Math.round(score);
   const band =
-    rounded <= 39
+    rounded >= 80
       ? { tone: "emerald", label: "Risiko Rendah" }
-      : rounded <= 69
+      : rounded >= 50
         ? { tone: "amber", label: "Risiko Sedang" }
         : { tone: "rose", label: "Risiko Tinggi" };
   return <Badge tone={band.tone}>{`${rounded} · ${band.label}`}</Badge>;

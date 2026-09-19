@@ -30,8 +30,10 @@ async function getActor() {
 }
 
 /**
- * Creates a customer scoped to the signed-in owner's business. All guards and
- * validation run before any mutation.
+ * Creates a customer scoped to the signed-in actor's own business. Both owners
+ * and cashiers are allowed to create customers (this is deliberately not an
+ * owner-only action); every customer is written to the actor's business. All
+ * guards and validation run before any mutation.
  *
  * @returns {Promise<{ ok: true, customerId: number } | { ok: false, error: string }>}
  */

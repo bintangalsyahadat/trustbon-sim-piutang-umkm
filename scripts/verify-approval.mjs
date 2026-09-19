@@ -8,8 +8,10 @@
  *   - Over-limit creation -> paymentStatus "need_approval"; within limit -> "confirmed".
  *   - /dashboard/approval is owner-only and renders "Diinput oleh <name> · <role>".
  *   - approveTransaction / rejectTransaction are owner-only, scoped to the actor's
- *     business (IDOR-safe), require a note on reject, and recompute the customer's
- *     risk score + append a ScoreHistory row on reject.
+ *     business (IDOR-safe) and require a note on reject. Rejecting cancels the
+ *     transaction; because scoring counts only CONFIRMED history, a customer whose
+ *     only transaction was the rejected one ends up with zero confirmed history, so
+ *     the scorer SKIPs (risk/trust untouched, no ScoreHistory row).
  *
  * Infrastructure mirrors scripts/verify-transaction-cancel.mjs / verify-authz.mjs:
  *  1. Reuses the existing build when SKIP_BUILD=1 and .next/BUILD_ID exists.
@@ -894,7 +896,7 @@ async function main() {
 
   await scenario(
     9,
-    "i. Owner rejects WITH a note -> {ok:true}, cancelled + note + risk recompute + ScoreHistory",
+    "i. Owner rejects WITH a note -> {ok:true}, cancelled + note; scoring SKIPs (no confirmed history)",
     async () => {
       const jar = await jarFor(fx.ownerA.email);
       const note = `stok habis ${RUN}`;
@@ -902,6 +904,10 @@ async function main() {
         where: { id: fx.cReject.id },
         select: { riskScore: true, trustStatus: true },
       });
+      // Fixture precondition: createCustomer seeds 50/"unrated" and cReject's only
+      // transaction is txRejectH (need_approval), which was never scored.
+      assertEq(pre.riskScore, 50, "pre riskScore");
+      assertEq(pre.trustStatus, "unrated", "pre trustStatus");
       const preCount = await scoreHistoryCount(fx.cReject.id);
       const run = await mustAction("rejectTransaction", jar, [
         { transactionId: fx.txRejectH.id, note },
@@ -910,19 +916,18 @@ async function main() {
       const after = await txById(fx.txRejectH.id);
       assertEq(after.paymentStatus, "cancelled", "paymentStatus");
       assertEq(after.cancelledNote, note, "cancelledNote equals the note");
+      // Rejection is a scoring NO-OP. Step 1 counts only confirmed transactions,
+      // and cancelling txRejectH leaves cReject with ZERO confirmed history, so
+      // calculateRiskScore SKIPs: risk/trust stay put and no ScoreHistory row is added.
       const post = await prisma.customer.findUnique({
         where: { id: fx.cReject.id },
         select: { riskScore: true, trustStatus: true },
       });
-      assert(
-        post.riskScore !== pre.riskScore || post.trustStatus !== pre.trustStatus,
-        `risk not recomputed (pre ${JSON.stringify(pre)} == post ${JSON.stringify(post)})`,
-      );
-      assertEq(post.riskScore, 54, "recomputed riskScore");
-      assertEq(post.trustStatus, "recovering", "recomputed trustStatus");
+      assertEq(post.riskScore, pre.riskScore, "riskScore unchanged after reject");
+      assertEq(post.trustStatus, pre.trustStatus, "trustStatus unchanged after reject");
       const postCount = await scoreHistoryCount(fx.cReject.id);
-      assertEq(postCount, preCount + 1, "new ScoreHistory row");
-      return `ok:true · DB ${fmtTx(after)} · riskScore ${pre.riskScore}->${post.riskScore} trustStatus ${pre.trustStatus}->${post.trustStatus} · scoreHistory ${preCount}->${postCount}`;
+      assertEq(postCount, preCount, "no new ScoreHistory row after reject");
+      return `ok:true · DB ${fmtTx(after)} · riskScore ${pre.riskScore}->${post.riskScore} trustStatus ${pre.trustStatus}->${post.trustStatus} · scoreHistory ${preCount}->${postCount} (skip: zero confirmed history)`;
     },
   );
 

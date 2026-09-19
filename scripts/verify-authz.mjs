@@ -1870,50 +1870,75 @@ async function main() {
     },
   );
 
-  // ── 29. Cashiers cannot open the owner-only customer list ─────────────────
+  // ── 29. Cashiers MAY open the customer list (scoped to their business) ────
   await scenario(
     29,
-    "cashier GET /dashboard/pelanggan is redirected off the owner-only route",
+    "cashier GET /dashboard/pelanggan is allowed and renders the customer surface",
     async () => {
       const cashier = await jarFor(fx.activeA2.email);
-      return await assertCashierRedirected(
-        "/dashboard/pelanggan",
-        cashier,
-        "customer list",
-      );
+      const res = await getPage("/dashboard/pelanggan", cashier);
+      assertEq(res.status, 200, "cashier GET /dashboard/pelanggan");
+      for (const marker of [
+        "Kelola pelanggan",
+        "Tambah pelanggan",
+        'data-testid="customer-search"',
+      ]) {
+        assert(
+          res.body.includes(marker),
+          `cashier /dashboard/pelanggan is missing ${JSON.stringify(marker)}`,
+        );
+      }
+      // No business-scoping assertion here: at this point both business A and
+      // business B have zero customers, so the cashier's list has nothing it
+      // could leak. Scenario 34 already covers list isolation (ownerB does not
+      // see business A's customer).
+      return 'cashier list 200; "Kelola pelanggan" + "Tambah pelanggan" + customer-search present';
     },
   );
 
-  // ── 30. createCustomer is owner-only ──────────────────────────────────────
+  // ── 30. Cashiers MAY create customers (scoped to their own business) ──────
   await scenario(
     30,
-    "createCustomer refuses a cashier and creates no customer row",
+    "createCustomer as a cashier succeeds and is scoped to the cashier's own business",
     async () => {
       const cashier = await jarFor(fx.activeA2.email);
-      const before = await prisma.customer.count({
+      const beforeA = await prisma.customer.count({
         where: { businessId: fx.businessA.id },
       });
+      const beforeB = await prisma.customer.count({
+        where: { businessId: fx.businessB.id },
+      });
 
-      const refused = await mustAction(cashier, "createCustomer", [
+      const created = await mustAction(cashier, "createCustomer", [
         {
-          name: "E2E Kasir Ditolak",
+          name: "E2E Kasir Pelanggan",
           phoneNumber: "081234567890",
           creditLimit: 250000,
         },
       ]);
-      assert(refused.parsed.ok === false, "cashier createCustomer was accepted");
-      assertEq(
-        refused.parsed.error,
-        CUSTOMER_ERR.NOT_OWNER,
-        "cashier createCustomer error",
+      assert(
+        created.parsed.ok === true,
+        `cashier createCustomer returned ${JSON.stringify(created.parsed)}`,
       );
 
-      const after = await prisma.customer.count({
+      const row = await prisma.customer.findFirst({
+        where: { businessId: fx.businessA.id, name: "E2E Kasir Pelanggan" },
+        select: { id: true, businessId: true },
+      });
+      assert(row, "cashier createCustomer returned ok but wrote no customer row");
+      assertEq(created.parsed.customerId, row.id, "returned customerId matches the row");
+      assertEq(row.businessId, fx.businessA.id, "cashier-created customer businessId");
+
+      const afterA = await prisma.customer.count({
         where: { businessId: fx.businessA.id },
       });
-      assertEq(after, before, "cashier createCustomer changed the customer count");
+      const afterB = await prisma.customer.count({
+        where: { businessId: fx.businessB.id },
+      });
+      assertEq(afterA, beforeA + 1, "cashier createCustomer did not add a business A customer");
+      assertEq(afterB, beforeB, "cashier createCustomer touched business B customers");
 
-      return `action id ${refused.id} on ${refused.page} -> ok:false "${refused.parsed.error}"; business A customers ${before} -> ${after}`;
+      return `action id ${created.id} on ${created.page} -> ok:true customerId#${row.id}; business A customers ${beforeA} -> ${afterA}; business B ${beforeB} -> ${afterB}`;
     },
   );
 
@@ -2003,14 +2028,14 @@ async function main() {
       assertEq(created.phoneNumber, "081234567890", "created customer phoneNumber (normalized)");
       assertEq(Number(created.creditLimit), 1500000, "created customer creditLimit");
       assertEq(created.riskScore, 50, "created customer riskScore");
-      assertEq(created.trustStatus, "recovering", "created customer trustStatus");
+      assertEq(created.trustStatus, "unrated", "created customer trustStatus");
       assertEq(
         await prisma.customer.count({ where: { businessId: fx.businessA.id } }),
         before + 1,
         "business A customer count after create",
       );
 
-      return `action id ${run.id} on ${run.page} -> customerA1#${created.id}; riskScore 50, trustStatus recovering, limit 1500000, phone "081234567890"`;
+      return `action id ${run.id} on ${run.page} -> customerA1#${created.id}; riskScore 50, trustStatus unrated, limit 1500000, phone "081234567890"`;
     },
   );
 
