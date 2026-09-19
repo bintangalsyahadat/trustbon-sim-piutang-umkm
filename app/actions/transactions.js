@@ -16,6 +16,9 @@ const TX_NOT_EDITABLE = "Transaksi ini tidak dapat diedit.";
 const TX_NOT_DELETABLE = "Transaksi ini tidak dapat dihapus.";
 const AMOUNT_INVALID = "Nominal transaksi harus lebih dari 0.";
 const DUE_DATE_INVALID = "Tanggal jatuh tempo tidak valid.";
+const TX_ALREADY_SETTLED = "Transaksi yang sudah lunas tidak dapat dibatalkan.";
+const TX_HAS_PAYMENT =
+  "Transaksi yang sudah memiliki pembayaran tidak dapat dibatalkan.";
 
 async function getActor() {
   const session = await auth();
@@ -347,11 +350,29 @@ export async function cancelTransaction({ transactionId, note } = {}) {
       id: true,
       paymentStatus: true,
       customerId: true,
+      status: true,
+      amount: true,
+      payments: {
+        where: { status: "confirmed" },
+        select: { amountPaid: true },
+      },
     },
   });
   if (!tx) return { ok: false, error: TX_NOT_FOUND };
   if (tx.paymentStatus !== "confirmed") {
     return { ok: false, error: "Hanya transaksi terkonfirmasi yang dapat dibatalkan." };
+  }
+
+  // A kasbon with any confirmed payment (partial or settled) must never be
+  // cancellable. Settled is derived from the payment data, not only tx.status,
+  // so a drifted status column cannot bypass the money rule.
+  const paidTotal = tx.payments.reduce(
+    (sum, payment) => sum + Number(payment.amountPaid),
+    0,
+  );
+  if (paidTotal > 0) {
+    const settled = tx.status === "paid" || paidTotal >= Number(tx.amount);
+    return { ok: false, error: settled ? TX_ALREADY_SETTLED : TX_HAS_PAYMENT };
   }
 
   const cleanNote = (note ?? "").trim();
@@ -418,6 +439,9 @@ export async function approveTransaction({ transactionId } = {}) {
 
 /**
  * Rejects a need_approval transaction (owner-only).
+ *
+ * No payment guard is needed here: only need_approval transactions are acted on,
+ * and payments can only be recorded against confirmed transactions by construction.
  *
  * @returns {Promise<{ ok: true } | { ok: false, error: string }>}
  */

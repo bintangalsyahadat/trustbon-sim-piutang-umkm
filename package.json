@@ -7,6 +7,9 @@
     "build": "next build",
     "start": "next start -p 3000 -H 0.0.0.0",
     "lint": "eslint",
+    "verify:payments": "node scripts/verify-payments.mjs",
+    "verify:customer-delete": "node scripts/verify-customer-delete.mjs",
+    "verify:transaction-cancel": "node scripts/verify-transaction-cancel.mjs",
     "postinstall": "prisma generate || exit 0"
   },
   "dependencies": {

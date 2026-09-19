@@ -492,6 +492,14 @@ export function TransactionManagement({
                   const isCancelled = tx.paymentStatus === "cancelled";
                   const isNeedApproval = tx.paymentStatus === "need_approval";
 
+                  // Business rule: a transaction with ANY recorded payment
+                  // (partial or settled) must not be cancellable.
+                  const isCancellable = tx.status === "unpaid";
+                  const cancelBlockedTitle =
+                    tx.status === "paid"
+                      ? "Transaksi yang sudah lunas tidak dapat dibatalkan."
+                      : "Transaksi yang sudah memiliki pembayaran tidak dapat dibatalkan.";
+
                   const rowClass = isCancelled
                     ? "border-b border-gray-100/80 dark:border-white/5 last:border-b-0 opacity-50"
                     : "group border-b border-gray-100/80 dark:border-white/5 last:border-b-0 hover:bg-violet-50/60 dark:hover:bg-white/5 transition-colors";
@@ -559,14 +567,24 @@ export function TransactionManagement({
                             </>
                           ) : null}
 
-                          {/* Confirmed: Cancel (owner only) */}
+                          {/* Confirmed: Cancel (owner only). Rows that already
+                              have payments keep a disabled affordance with an
+                              explanatory tooltip so the rule stays legible. */}
                           {isConfirmed && isOwner ? (
-                            <ActionButton
-                              icon={X}
-                              label="Batalkan"
-                              onClick={() => openCancel(tx)}
-                              tone="danger"
-                            />
+                            isCancellable ? (
+                              <ActionButton
+                                icon={X}
+                                label="Batalkan"
+                                onClick={() => openCancel(tx)}
+                                tone="danger"
+                              />
+                            ) : (
+                              <ActionButton
+                                icon={X}
+                                label={cancelBlockedTitle}
+                                disabled
+                              />
+                            )
                           ) : null}
 
                           {/* Need approval: note indicator */}
