@@ -43,6 +43,21 @@ html[data-theme="dark"] body {
   color: #f3f0fa !important;
 }
 
+/* Search inputs: hide WebKit/Blink's native decorations (cancel X, results
+   magnifier). Every search field renders its own custom clear button with an
+   aria-label, and the native one shows up next to it as a duplicate X.
+   Scoped to the input's own pseudo-elements, so the custom button (a sibling
+   of the input) can never be affected. type="search" stays for the mobile
+   search keyboard and the semantic searchbox role. */
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
 /* Glassmorphism custom utilities — calm variant.
    The page background is intentionally clean (no ambient gradients), so these
    read as quiet, softly-defined surfaces: translucent fill + thin light rim.

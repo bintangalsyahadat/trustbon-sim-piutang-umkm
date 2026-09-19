@@ -10,6 +10,7 @@
     "verify:payments": "node scripts/verify-payments.mjs",
     "verify:customer-delete": "node scripts/verify-customer-delete.mjs",
     "verify:transaction-cancel": "node scripts/verify-transaction-cancel.mjs",
+    "verify:approval": "node scripts/verify-approval.mjs",
     "postinstall": "prisma generate || exit 0"
   },
   "dependencies": {

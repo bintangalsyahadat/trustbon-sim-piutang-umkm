@@ -1,13 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useMemo, useState, useSyncExternalStore, useTransition } from "react";
+import { createPortal } from "react-dom";
 import {
   Check,
   ClipboardCheck,
   FileText,
   Loader2,
+  Search,
   ShieldCheck,
+  UserRound,
   X,
 } from "lucide-react";
 import { authInputClass, authLabelClass } from "@/components/AuthUi";
@@ -28,12 +31,31 @@ const primaryButtonClass =
 const secondaryButtonClass =
   "px-4 py-2.5 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 disabled:opacity-60 disabled:cursor-not-allowed font-semibold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#1a1625]";
 
+const emptySubscribe = () => () => {};
+
+const idrFormatter = new Intl.NumberFormat("id-ID", {
+  style: "currency",
+  currency: "IDR",
+  maximumFractionDigits: 0,
+});
+
 const dangerButtonClass =
   "px-4 py-2.5 rounded-lg bg-rose-500 hover:bg-rose-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold text-xs shadow-md shadow-rose-500/30 dark:shadow-black/30 transition-all flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#1a1625]";
 
 export function ApprovalManagement({ transactions }) {
   const router = useRouter();
   const toast = useToast();
+
+  // Hydration-safe mounted flag for portalling the reject dialog to
+  // document.body (same pattern as ConfirmDialog).
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+
+  // Search state (client-side filter over the loaded list)
+  const [query, setQuery] = useState("");
 
   // Approve state
   const [approveTx, setApproveTx] = useState(null);
@@ -104,6 +126,17 @@ export function ApprovalManagement({ transactions }) {
     });
   }
 
+  const normalizedQuery = query.trim().toLowerCase();
+
+  const filtered = useMemo(() => {
+    if (!normalizedQuery) return transactions;
+    return transactions.filter(
+      (tx) =>
+        (tx.customerName ?? "").toLowerCase().includes(normalizedQuery) ||
+        (tx.transactionNumber ?? "").toLowerCase().includes(normalizedQuery)
+    );
+  }, [transactions, normalizedQuery]);
+
   const isEmpty = transactions.length === 0;
 
   return (
@@ -117,9 +150,38 @@ export function ApprovalManagement({ transactions }) {
         </p>
       </div>
 
+      {/* Search */}
+      <div className="mt-6 flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-md">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <input
+            type="search"
+            aria-label="Cari transaksi yang menunggu persetujuan"
+            placeholder="Cari nama pelanggan atau nomor transaksi…"
+            data-testid="approval-search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            className={`${authInputClass} pr-9`}
+          />
+          {query ? (
+            <button
+              type="button"
+              aria-label="Hapus pencarian"
+              onClick={() => setQuery("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          ) : null}
+        </div>
+      </div>
+
       {!isEmpty && (
-        <p className="mt-4 text-xs text-gray-500 dark:text-gray-400">
-          Menunggu persetujuan: {transactions.length} transaksi
+        <p className="mt-4 text-xs text-gray-500 dark:text-gray-400 tabular-nums">
+          Menunggu persetujuan:{" "}
+          {normalizedQuery
+            ? `${filtered.length} dari ${transactions.length} transaksi`
+            : `${transactions.length} transaksi`}
         </p>
       )}
 
@@ -138,9 +200,64 @@ export function ApprovalManagement({ transactions }) {
             </p>
           </div>
         </section>
+      ) : filtered.length === 0 ? (
+        <section className={`${sectionCardClass} mt-6`}>
+          <div className="rounded-xl border border-dashed border-gray-200 dark:border-white/10 px-4 py-8 text-center">
+            <div className="w-11 h-11 rounded-2xl bg-violet-100 dark:bg-violet-500/15 border border-violet-200 dark:border-violet-500/25 text-violet-600 dark:text-violet-300 flex items-center justify-center mx-auto mb-3">
+              <Search className="w-5 h-5" />
+            </div>
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+              Tidak ada transaksi yang cocok dengan pencarian
+            </h3>
+            <p className="mt-1 text-xs text-gray-600 dark:text-gray-400 max-w-sm mx-auto leading-relaxed">
+              Coba kata kunci lain, atau hapus pencarian untuk melihat semua
+              transaksi yang menunggu persetujuan.
+            </p>
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              className={`${secondaryButtonClass} mt-4 mx-auto`}
+            >
+              <X className="w-3.5 h-3.5" />
+              Hapus pencarian
+            </button>
+          </div>
+        </section>
       ) : (
         <div className="mt-6 space-y-4">
-          {transactions.map((tx) => (
+          {filtered.map((tx) => {
+            const creditLimitNumber = Number(tx.customerCreditLimit);
+            const hasCreditLimit =
+              Number.isFinite(creditLimitNumber) && creditLimitNumber >= 0;
+            const creditLimitLabel = hasCreditLimit
+              ? idrFormatter.format(creditLimitNumber)
+              : "—";
+            const totalAfterNumber = Number(tx.totalAfter);
+            const hasTotalAfter = Number.isFinite(totalAfterNumber);
+            const overLimitByNumber = Number(tx.overLimitBy);
+            const isOverLimit =
+              Number.isFinite(overLimitByNumber) &&
+              overLimitByNumber > 0 &&
+              Boolean(tx.overLimitByLabel);
+            const usagePercent =
+              hasCreditLimit && creditLimitNumber > 0 && hasTotalAfter
+                ? Math.min(
+                    100,
+                    Math.round((totalAfterNumber / creditLimitNumber) * 100)
+                  )
+                : null;
+            const creatorName =
+              typeof tx.creatorName === "string" && tx.creatorName.trim()
+                ? tx.creatorName
+                : null;
+            const creatorRoleLabel =
+              tx.creatorRole === "owner"
+                ? "Pemilik"
+                : tx.creatorRole === "cashier"
+                  ? "Kasir"
+                  : null;
+
+            return (
             <section
               key={tx.id}
               className={`${sectionCardClass}`}
@@ -153,8 +270,26 @@ export function ApprovalManagement({ transactions }) {
                   <p className="mt-0.5 text-[11px] font-medium tabular-nums text-gray-400 dark:text-gray-500">
                     {tx.transactionNumber}
                   </p>
+                  <p className="mt-1 flex items-center gap-1.5 text-[11px] text-gray-500 dark:text-gray-400">
+                    <UserRound className="w-3 h-3 shrink-0" aria-hidden="true" />
+                    <span className="min-w-0 truncate">
+                      {creatorName ? (
+                        <>
+                          Diinput oleh{" "}
+                          <span className="font-semibold text-gray-700 dark:text-gray-200">
+                            {creatorName}
+                            {creatorRoleLabel ? ` · ${creatorRoleLabel}` : ""}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="font-medium text-gray-400 dark:text-gray-500">
+                          Penginput tidak diketahui
+                        </span>
+                      )}
+                    </span>
+                  </p>
 
-                  <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                  <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
                     <div>
                       <span className="text-gray-500 dark:text-gray-400 block">
                         Nominal
@@ -179,18 +314,69 @@ export function ApprovalManagement({ transactions }) {
                         {tx.transactionDateLabel}
                       </span>
                     </div>
-                    <div>
-                      <span className="text-gray-500 dark:text-gray-400 block">
-                        Limit Kredit
-                      </span>
-                      <span className="font-semibold text-gray-900 dark:text-white">
-                        {new Intl.NumberFormat("id-ID", {
-                          style: "currency",
-                          currency: "IDR",
-                          maximumFractionDigits: 0,
-                        }).format(tx.customerCreditLimit)}
-                      </span>
+                  </div>
+
+                  <div className="mt-3 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-3">
+                    <div className="grid grid-cols-3 gap-2 text-[11px]">
+                      <div className="min-w-0">
+                        <span className="text-gray-500 dark:text-gray-400 block">
+                          Limit Kredit
+                        </span>
+                        <span className="font-semibold tabular-nums text-gray-900 dark:text-white">
+                          {creditLimitLabel}
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-gray-500 dark:text-gray-400 block">
+                          Utang Aktif
+                        </span>
+                        <span className="font-semibold tabular-nums text-gray-900 dark:text-white">
+                          {tx.activeDebtLabel ?? "—"}
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-gray-500 dark:text-gray-400 block leading-tight">
+                          Total setelah disetujui
+                        </span>
+                        <span
+                          className={`font-semibold tabular-nums ${
+                            isOverLimit
+                              ? "text-rose-600 dark:text-rose-300"
+                              : "text-gray-900 dark:text-white"
+                          }`}
+                        >
+                          {tx.totalAfterLabel ?? "—"}
+                        </span>
+                      </div>
                     </div>
+                    {usagePercent !== null ? (
+                      <div className="mt-2.5 flex items-center gap-2">
+                        <div
+                          role="progressbar"
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-valuenow={usagePercent}
+                          aria-label={`Pemakaian limit setelah disetujui: ${usagePercent} persen`}
+                          className="flex-1 bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden"
+                        >
+                          <div
+                            className={`h-1.5 rounded-full ${
+                              isOverLimit ? "bg-rose-500" : "bg-emerald-500"
+                            }`}
+                            style={{ width: `${usagePercent}%` }}
+                          />
+                        </div>
+                        {isOverLimit ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tabular-nums border bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/25">
+                            Melebihi limit {tx.overLimitByLabel}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] tabular-nums text-gray-500 dark:text-gray-400">
+                            {usagePercent}% dari limit
+                          </span>
+                        )}
+                      </div>
+                    ) : null}
                   </div>
 
                   <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -224,7 +410,8 @@ export function ApprovalManagement({ transactions }) {
                 </div>
               </div>
             </section>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -250,8 +437,11 @@ export function ApprovalManagement({ transactions }) {
         />
       ) : null}
 
-      {/* Reject Dialog */}
-      {rejectTx ? (
+      {/* Reject Dialog — portalled to document.body after hydration so the
+          fixed backdrop resolves against the viewport, not a backdrop-filter /
+          transformed ancestor. */}
+      {rejectTx && mounted
+        ? createPortal(
         <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div
             role="dialog"
@@ -312,8 +502,10 @@ export function ApprovalManagement({ transactions }) {
               </div>
             </div>
           </div>
-        </div>
-      ) : null}
+        </div>,
+            document.body
+          )
+        : null}
     </div>
   );
 }

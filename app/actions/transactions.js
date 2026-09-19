@@ -136,6 +136,7 @@ export async function createTransaction({ customerId, amount, dueDate, note } = 
           paymentStatus: initialStatus,
           status: "unpaid",
           note: cleanNote,
+          createdById: actor.id,
         },
         select: { id: true },
       });

@@ -89,7 +89,8 @@ model User {
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
 
-  notifications Notification[]
+  notifications       Notification[]
+  createdTransactions Transaction[]  @relation("TransactionCreator")
 }
 
 model Customer {
@@ -123,6 +124,8 @@ model Transaction {
   status          PaymentProgress @default(unpaid)
   note            String?
   cancelledNote   String?
+  createdById     Int?
+  createdBy       User?           @relation("TransactionCreator", fields: [createdById], references: [id], onDelete: SetNull)
 
   payments Payment[]
 
