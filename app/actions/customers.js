@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { getActiveDebtByCustomer } from "@/lib/customer-debt";
 
 const NO_SESSION = "Sesi tidak ditemukan. Silakan masuk kembali.";
 const ACTOR_NOT_ACTIVE = "Akun Anda tidak aktif.";
@@ -14,6 +15,8 @@ const NAME_INVALID = "Nama pelanggan wajib diisi (maksimal 100 karakter).";
 const PHONE_INVALID = "Nomor HP tidak valid. Gunakan 9–16 digit angka.";
 const LIMIT_INVALID = "Limit kredit tidak valid.";
 const CUSTOMER_HAS_DEBT = "Pelanggan masih memiliki utang aktif dan tidak dapat dihapus.";
+const CUSTOMER_HAS_HISTORY =
+  "Pelanggan tidak dapat dihapus karena masih memiliki riwayat transaksi.";
 
 /** Reads the signed-in actor from the session, or null when not signed in. */
 async function getActor() {
@@ -131,9 +134,11 @@ export async function updateCustomer({ id, name, phoneNumber, creditLimit } = {}
 }
 
 /**
- * Soft-handles deletion: if the customer has active debt, refuse. Otherwise
- * delete the customer row (cascades to transactions, payments, reminders,
- * scoreHistory via FK). Only the owner can delete.
+ * Deletes a customer when they have no active debt. Only the owner can delete.
+ *
+ * The schema relations are restrict-by-default (no database cascade), so the
+ * delete still fails when the customer has any surviving transaction history;
+ * that financial history is intentionally retained and never deleted here.
  */
 export async function deleteCustomer({ id } = {}) {
   const actor = await getActor();
@@ -146,34 +151,10 @@ export async function deleteCustomer({ id } = {}) {
     return { ok: false, error: CUSTOMER_NOT_FOUND };
   }
 
-  // Check for active (confirmed) debt.
-  const activeDebt = await prisma.transaction.aggregate({
-    where: {
-      customerId,
-      businessId: actor.businessId,
-      type: "credit",
-      paymentStatus: "confirmed",
-      status: { in: ["unpaid", "partial"] },
-    },
-    _sum: { amount: true },
-  });
-
-  const totalPaid = await prisma.payment.aggregate({
-    where: {
-      transaction: {
-        customerId,
-        businessId: actor.businessId,
-        type: "credit",
-        paymentStatus: "confirmed",
-      },
-      status: "confirmed",
-    },
-    _sum: { amountPaid: true },
-  });
-
-  const owed =
-    Number(activeDebt._sum.amount ?? 0) -
-    Number(totalPaid._sum.amountPaid ?? 0);
+  // Canonical active-debt check: confirmed transactions (unpaid/partial) minus
+  // their confirmed payments.
+  const debts = await getActiveDebtByCustomer(actor.businessId, customerId);
+  const owed = debts.get(customerId) ?? 0;
   if (owed > 0) {
     return { ok: false, error: CUSTOMER_HAS_DEBT };
   }
@@ -182,7 +163,11 @@ export async function deleteCustomer({ id } = {}) {
     await prisma.customer.delete({
       where: { id: customerId, businessId: actor.businessId },
     });
-  } catch {
+  } catch (err) {
+    // P2003 = foreign-key/constraint violation (surviving history).
+    if (err?.code === "P2003") {
+      return { ok: false, error: CUSTOMER_HAS_HISTORY };
+    }
     return { ok: false, error: CUSTOMER_NOT_FOUND };
   }
 

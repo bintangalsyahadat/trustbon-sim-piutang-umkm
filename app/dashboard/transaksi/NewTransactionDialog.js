@@ -264,7 +264,7 @@ export function NewTransactionDialog({
             if (res.pendingApprovalCount > 0) {
               msgs.push(`Peringatan: pelanggan ini memiliki ${res.pendingApprovalCount} transaksi lain yang juga menunggu persetujuan.`);
             }
-            toast.info(msgs.join(" "));
+            toast.success(msgs.join(" "));
           } else {
             toast.success("Transaksi berhasil dibuat dan dikonfirmasi.");
           }
