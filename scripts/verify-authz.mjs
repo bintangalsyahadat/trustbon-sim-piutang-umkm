@@ -2475,6 +2475,105 @@ async function main() {
     },
   );
 
+  // ── 41. Owner can view the (owner-only) Tim page ──────────────────────────
+  // `/dashboard/tim` was replaced from a ComingSoon stub with a real member
+  // list; these scenarios pin its contract. NOTE: the remove confirmation modal
+  // is deliberately NOT asserted — ConfirmDialog is client-side/portalled and
+  // only mounts on interaction, so it never appears in an HTTP GET body (the
+  // same shared component is already exercised on /dashboard/bisnis).
+  await scenario(
+    41,
+    "Owner can view /dashboard/tim with the invite code and member list",
+    async () => {
+      const owner = await jarFor(fx.ownerA.email);
+      // scenario 16 regenerated the code, so read the CURRENT DB value.
+      const business = await prisma.business.findUnique({
+        where: { id: fx.businessA.id },
+        select: { inviteCode: true },
+      });
+      assert(business?.inviteCode, "business A has no invite code in the DB");
+
+      const res = await getPage("/dashboard/tim", owner);
+      assertEq(res.status, 200, "owner GET /dashboard/tim");
+      assert(
+        res.body.includes('data-testid="tim-member-list"'),
+        '/dashboard/tim is missing data-testid="tim-member-list"',
+      );
+      assert(
+        visibleText(res.body).includes(business.inviteCode),
+        `/dashboard/tim visible text does not contain the invite code ${business.inviteCode}`,
+      );
+
+      return `owner /dashboard/tim -> 200; tim-member-list present; invite code ${business.inviteCode} visible`;
+    },
+  );
+
+  // ── 42. Tim remove-control scoping ────────────────────────────────────────
+  await scenario(
+    42,
+    "Tim member rows expose a remove control for cashiers but not for the owner",
+    async () => {
+      const owner = await jarFor(fx.ownerA.email);
+      const res = await getPage("/dashboard/tim", owner);
+      assertEq(res.status, 200, "owner GET /dashboard/tim");
+
+      // Parse rows by opening tag (attribute order agnostic); each row's content
+      // runs up to the next row so a row can never inherit a neighbour's button.
+      const rowRe = /<[a-z][^>]*data-testid="tim-member-row"[^>]*>/gi;
+      const rows = [...res.body.matchAll(rowRe)];
+      assert(rows.length > 0, 'no data-testid="tim-member-row" rows rendered');
+
+      const rowFor = (memberId) => {
+        for (let i = 0; i < rows.length; i++) {
+          const open = rows[i];
+          const end = i + 1 < rows.length ? rows[i + 1].index : res.body.length;
+          const rowHtml = open[0] + res.body.slice(open.index + open[0].length, end);
+          if (rowHtml.includes(`data-member-id="${memberId}"`)) return rowHtml;
+        }
+        return null;
+      };
+
+      const ownerRow = rowFor(fx.ownerA.id);
+      assert(ownerRow, `owner row (data-member-id="${fx.ownerA.id}") not rendered`);
+      assert(
+        !ownerRow.includes("tim-remove-member"),
+        "owner row renders a tim-remove-member control (the owner must not be removable)",
+      );
+
+      const cashierRow = rowFor(fx.activeA2.id);
+      assert(cashierRow, `cashier row (data-member-id="${fx.activeA2.id}") not rendered`);
+      assert(
+        cashierRow.includes("tim-remove-member"),
+        "cashier row is missing the tim-remove-member control",
+      );
+      assert(
+        cashierRow.includes(`data-member-id="${fx.activeA2.id}"`),
+        "cashier remove control is not bound to the cashier's member id",
+      );
+
+      const removeCount = countMatches(res.body, /tim-remove-member/g);
+      assert(removeCount >= 1, "no tim-remove-member control rendered anywhere");
+
+      return `owner row has no remove control; activeA2 row has one (${removeCount} remove controls total)`;
+    },
+  );
+
+  // ── 43. Tim page is owner-only ────────────────────────────────────────────
+  await scenario(
+    43,
+    "Owner-only /dashboard/tim redirects cashiers and leaks no member list",
+    async () => {
+      const cashier = await jarFor(fx.activeA2.email);
+      const redirected = await assertCashierRedirected("/dashboard/tim", cashier, "tim");
+      const res = await getPage("/dashboard/tim", cashier);
+      assert(
+        !res.body.includes("tim-member-list"),
+        'cashier response contains data-testid="tim-member-list"',
+      );
+      return `${redirected}; cashier body has no tim-member-list`;
+    },
+  );
+
   // ── Resolved mapping report ───────────────────────────────────────────────
   console.log("\nResolved action-id mapping (client chunks ∩ server manifest, probe-confirmed above):");
   for (const entry of resolution) {
