@@ -10,9 +10,6 @@ import {
   Trash2,
   ShieldCheck,
   User as UserIcon,
-  Wifi,
-  WifiOff,
-  MessageCircle,
 } from "lucide-react";
 import { regenerateInviteCode } from "@/app/actions/profile";
 import { removeMember } from "@/app/actions/members";
@@ -242,63 +239,6 @@ function RemoveMemberAction({ userId, userName, onNotice }) {
 }
 
 /**
- * Fonnte WhatsApp connection status indicator. Shows whether the Fonnte
- * integration is configured and the device is connected.
- */
-function FonnteStatusSection({ configured, connected, deviceName }) {
-  const statusDot = configured && connected
-    ? "bg-emerald-500"
-    : configured
-      ? "bg-amber-500"
-      : "bg-gray-400 dark:bg-gray-500";
-
-  const statusLabel =
-    configured && connected
-      ? "Terhubung"
-      : configured
-        ? "Terputus"
-        : "Belum dikonfigurasi";
-
-  const statusTextColor =
-    configured && connected
-      ? "text-emerald-700 dark:text-emerald-300"
-      : configured
-        ? "text-amber-700 dark:text-amber-300"
-        : "text-gray-500 dark:text-gray-400";
-
-  return (
-    <section className={sectionCardClass}>
-      <SectionHeader
-        icon={MessageCircle}
-        title="Pengingat WhatsApp"
-        description="Status koneksi Fonnte untuk pengiriman pengingat otomatis ke pelanggan."
-      />
-      <div className="flex items-center gap-3">
-        <div className={`w-2.5 h-2.5 rounded-full ${statusDot} shrink-0`} />
-        <div className="min-w-0">
-          <p className={`text-sm font-semibold ${statusTextColor}`}>
-            {statusLabel}
-          </p>
-          {configured && connected && deviceName ? (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              {deviceName}
-            </p>
-          ) : configured && !connected ? (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              Buka Fonnte di perangkat Anda untuk menghubungkan kembali.
-            </p>
-          ) : (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              Set environment variable <code className="font-mono bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-[11px]">FONNTE_TOKEN</code> untuk mengaktifkan.
-            </p>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/**
  * Owner-only team page: invite-code management plus the active member list.
  * `currentUserId` hides the destructive action on the owner's own row, and
  * only cashiers can ever be removed.
@@ -307,9 +247,6 @@ export function TimManagement({
   inviteCode,
   members,
   currentUserId,
-  fonnteConfigured,
-  fonnteConnected,
-  fonnteDeviceName,
 }) {
   const [notice, setNotice] = useState(null);
 
@@ -327,12 +264,6 @@ export function TimManagement({
       </header>
 
       <InviteCodeSection initialInviteCode={inviteCode} />
-
-      <FonnteStatusSection
-        configured={fonnteConfigured}
-        connected={fonnteConnected}
-        deviceName={fonnteDeviceName}
-      />
 
       {/* Removal feedback sits directly above the member list so the
           confirmation appears exactly where the removal happened. */}
