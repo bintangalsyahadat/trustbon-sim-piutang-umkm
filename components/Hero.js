@@ -14,6 +14,7 @@ import {
   UserCheck,
   ChevronRight
 } from "lucide-react";
+import { HeroGrid } from "./HeroGrid";
 
 export function Hero({ isAuthenticated = false }) {
   const router = useRouter();
@@ -26,6 +27,8 @@ export function Hero({ isAuthenticated = false }) {
       id="hero"
       className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden"
     >
+      <HeroGrid />
+      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-transparent via-white/80 to-white dark:via-[#1a1625]/80 dark:to-[#1a1625] pointer-events-none z-10" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Column: Copywriting & CTA */}
