@@ -5,6 +5,39 @@ import { AlertTriangle, RefreshCw, Sparkles } from "lucide-react";
 import { InsightCard } from "@/components/dashboard/InsightCard";
 
 /**
+ * Split LLM insight text into individual sentences for multi-card display.
+ * Splits on newlines first (if LLM uses them), then falls back to
+ * sentence-boundary detection that avoids breaking on decimal separators
+ * in numbers like Rp 1.500.000.
+ */
+function splitInsight(text) {
+  if (!text) return [];
+  // Strip any residual markdown formatting the LLM may have added
+  const cleaned = text
+    .replace(/\*\*/g, "")
+    .replace(/^#+\s*/gm, "")
+    .replace(/^\s*[-*]\s+/gm, "")
+    .replace(/^\s*\d+\.\s+/gm, "")
+    .trim();
+  const trimmed = cleaned;
+
+  // If LLM returned double-newline-separated paragraphs, use those
+  const byNewline = trimmed
+    .split(/\n\n+/)
+    .map((s) => s.replace(/\n/g, " ").trim())
+    .filter(Boolean);
+  if (byNewline.length > 1) return byNewline;
+
+  // Sentence-boundary split: period/exclamation/question followed by
+  // whitespace and an uppercase letter (avoids Rp 1.500.000 splits)
+  const parts = trimmed
+    .split(/(?<=[.!?])\s+(?=[A-Z])/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return parts.length > 0 ? parts : [trimmed];
+}
+
+/**
  * Skeleton pulse bar matching the InsightCard layout.
  */
 function InsightSkeleton() {
@@ -83,9 +116,18 @@ export function InsightSection() {
     );
   }
 
+  // Cap at 2 cards: if 3+ sentences, merge extras into the last card
+  const sentences = splitInsight(insight);
+  const display =
+    sentences.length > 2
+      ? [sentences[0], sentences.slice(1).join(" ")]
+      : sentences;
+
   return (
     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-5">
-      <InsightCard>{insight}</InsightCard>
+      {display.map((s, i) => (
+        <InsightCard key={i}>{s}</InsightCard>
+      ))}
     </div>
   );
 }

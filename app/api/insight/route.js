@@ -20,7 +20,7 @@ export async function GET() {
   }
 
   const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+    where: { id: Number(session.user.id) },
     select: { businessId: true, role: true },
   });
   if (!user || user.role !== "owner" || !user.businessId) {
