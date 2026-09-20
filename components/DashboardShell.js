@@ -46,18 +46,18 @@ const FOCUS_RING =
   "focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500";
 
 const CASHIER_NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Beranda", icon: LayoutDashboard },
   { href: "/dashboard/pelanggan", label: "Pelanggan", icon: Users },
   { href: "/dashboard/transaksi", label: "Transaksi", icon: Receipt },
   { href: "/dashboard/pembayaran", label: "Pembayaran", icon: Wallet },
 ];
 
 const OWNER_NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Beranda", icon: LayoutDashboard },
   { href: "/dashboard/pelanggan", label: "Pelanggan", icon: Users },
   { href: "/dashboard/transaksi", label: "Transaksi", icon: Receipt },
   { href: "/dashboard/pembayaran", label: "Pembayaran", icon: Wallet },
-  { href: "/dashboard/approval", label: "Approval", icon: ClipboardCheck },
+  { href: "/dashboard/approval", label: "Persetujuan", icon: ClipboardCheck },
   { href: "/dashboard/tim", label: "Tim", icon: UserCog },
   { href: "/dashboard/laporan", label: "Laporan", icon: BarChart3 },
 ];

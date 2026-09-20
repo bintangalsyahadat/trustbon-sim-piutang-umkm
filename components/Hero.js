@@ -54,7 +54,7 @@ export function Hero({ isAuthenticated = false }) {
               <strong className="text-violet-700 dark:text-violet-300 font-semibold">
                 Skor Kepercayaan Pelanggan (0–100)
               </strong>
-              , mendeteksi risiko kredit macet lebih awal, dan memproteksi limit utang dengan persetujuan Owner.
+              , mendeteksi risiko kredit macet lebih awal, dan memproteksi limit utang dengan persetujuan Pemilik.
             </p>
 
             <p className="text-sm text-violet-600 dark:text-violet-300 font-medium leading-relaxed">
@@ -151,7 +151,7 @@ export function Hero({ isAuthenticated = false }) {
                       <h2 className="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
                         Warung Sembako Barokah
                         <span className="text-[10px] px-1.5 py-0.2 bg-violet-100 dark:bg-violet-500/15 text-violet-700 dark:text-violet-300 rounded font-medium">
-                          Owner
+                          Pemilik
                         </span>
                       </h2>
                       <p className="text-[10px] text-gray-500 dark:text-gray-400">
@@ -171,7 +171,7 @@ export function Hero({ isAuthenticated = false }) {
                           : "text-gray-500 hover:text-gray-800 dark:hover:text-gray-300"
                       }`}
                     >
-                      Approval
+                      Persetujuan
                     </button>
                     <button
                       type="button"
@@ -239,22 +239,22 @@ export function Hero({ isAuthenticated = false }) {
 
                       {/* Technical Architecture Note explicitly rendered for the user */}
                       <div className="pt-1 flex items-center justify-between text-[11px]">
-                        <span className="text-gray-500 text-[10px]">Lifecycle (paymentStatus):</span>
+                        <span className="text-gray-500 text-[10px]">Status Pembayaran:</span>
                         {isApproved ? (
                           <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3" /> confirmed
+                            <CheckCircle2 className="w-3 h-3" /> Dikonfirmasi
                           </span>
                         ) : (
                           <span className="font-semibold text-amber-600 dark:text-amber-400">
-                            draft (Menunggu Approval)
+                            Draf (Menunggu Persetujuan)
                           </span>
                         )}
                       </div>
 
                       <div className="flex items-center justify-between text-[11px]">
-                        <span className="text-gray-500 text-[10px]">Progres Pelunasan (status):</span>
+                        <span className="text-gray-500 text-[10px]">Progres Pelunasan:</span>
                         <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-100 text-rose-800 dark:bg-rose-500/15 dark:text-rose-300 border border-rose-200 dark:border-rose-500/25">
-                          unpaid
+                          Belum Dibayar
                         </span>
                       </div>
 
@@ -262,7 +262,7 @@ export function Hero({ isAuthenticated = false }) {
                         {isApproved ? (
                           <div className="w-full py-2 px-3 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/25 text-emerald-800 dark:text-emerald-300 text-center text-xs font-semibold flex items-center justify-center gap-1.5">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                            Transaksi Dikonfirmasi oleh Owner!
+                            Transaksi Dikonfirmasi oleh Pemilik!
                           </div>
                         ) : (
                           <button
@@ -271,7 +271,7 @@ export function Hero({ isAuthenticated = false }) {
                             className="w-full py-2 px-3 rounded-lg bg-violet-500 hover:bg-violet-600 text-white text-xs font-semibold shadow-sm transition-all flex items-center justify-center gap-1.5"
                           >
                             <UserCheck className="w-3.5 h-3.5" />
-                            Setujui Transaksi (Approve sebagai Owner)
+                            Setujui Transaksi (Sebagai Pemilik)
                           </button>
                         )}
                       </div>
@@ -292,7 +292,7 @@ export function Hero({ isAuthenticated = false }) {
                         </div>
                         {/* Semantic badge standard: Green for stable */}
                         <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25">
-                          stable
+                          Aman
                         </span>
                       </div>
 
@@ -335,7 +335,7 @@ export function Hero({ isAuthenticated = false }) {
                     </div>
 
                     <div className="p-2.5 rounded-lg bg-violet-50 dark:bg-violet-500/10 border border-violet-200/60 dark:border-violet-500/20 text-[10px] text-violet-900 dark:text-violet-300">
-                      💡 <strong>Rekomendasi TrustBon:</strong> Pelanggan berkategori <em>stable</em> berhak mendapatkan kenaikan limit kredit hingga Rp 3.000.000.
+                        💡 <strong>Rekomendasi TrustBon:</strong> Pelanggan berkategori <em>Aman</em> berhak mendapatkan kenaikan limit kredit hingga Rp 3.000.000.
                     </div>
                   </div>
                 )}
@@ -350,7 +350,7 @@ export function Hero({ isAuthenticated = false }) {
                           Format WhatsApp Reminder
                         </span>
                         <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400">
-                          deliveryStatus: sent
+                          Status: Terkirim
                         </span>
                       </div>
                     </div>
@@ -379,7 +379,7 @@ export function Hero({ isAuthenticated = false }) {
                 <div className="mt-4 pt-3 border-t border-gray-200/60 dark:border-white/10 flex items-center justify-between text-[11px]">
                   <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1">
                     <TrendingUp className="w-3 h-3 text-violet-600 dark:text-violet-400" />
-                    Multi-Tenant Ready
+                    Multi-Tenant Siap
                   </span>
                   <button
                     type="button"

@@ -10,8 +10,8 @@ const COLUMNS = [
   { key: "totalCredit", label: "Kasbon Periode", sortable: true, align: "right", format: formatIDR },
   { key: "totalPaid", label: "Dibayar Periode", sortable: true, align: "right", format: formatIDR },
   { key: "outstanding", label: "Sisa Utang", sortable: true, align: "right", format: formatIDR },
-  { key: "riskScore", label: "Risk Score", sortable: true, align: "center" },
-  { key: "trustStatus", label: "Trust Status", sortable: true, align: "center" },
+  { key: "riskScore", label: "Skor Risiko", sortable: true, align: "center" },
+  { key: "trustStatus", label: "Status Kepercayaan", sortable: true, align: "center" },
 ];
 
 function SortIcon({ active, direction }) {

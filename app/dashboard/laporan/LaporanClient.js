@@ -245,7 +245,7 @@ export function LaporanClient({ initialData }) {
             className={EXPORT_BTN}
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
-            Export Excel
+            Ekspor Excel
           </button>
           <button
             type="button"
@@ -253,7 +253,7 @@ export function LaporanClient({ initialData }) {
             className={EXPORT_BTN}
           >
             <FileText className="w-3.5 h-3.5" />
-            Export PDF
+            Ekspor PDF
           </button>
         </div>
       </section>

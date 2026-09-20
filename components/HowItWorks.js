@@ -30,7 +30,7 @@ export function HowItWorks({ isAuthenticated = false }) {
       title: "Mulai Catat Kasbon & Pantau Skor",
       subtitle: "Otomasi & Proteksi Penuh",
       description:
-        "Input kasbon harian. Jika melebihi limit, transaksi otomatis berstatus draft dan butuh persetujuan Owner. Sistem langsung menghitung skor risiko & menjadwalkan reminder WA.",
+        "Input kasbon harian. Jika melebihi limit, transaksi otomatis berstatus draf dan butuh persetujuan Pemilik. Sistem langsung menghitung skor risiko & menjadwalkan pengingat WA.",
       details: ["Skoring risiko kredit otomatis (0-100)", "Proteksi kasbon over-limit", "Pengingat WhatsApp terintegrasi"],
     },
   ];

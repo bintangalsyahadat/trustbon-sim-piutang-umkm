@@ -118,7 +118,7 @@ export async function exportToPdf(data) {
 
     autoTable(doc, {
       startY: y,
-      head: [["Nama", "Kasbon", "Dibayar", "Sisa Utang", "Risk", "Status"]],
+      head: [["Nama", "Kasbon", "Dibayar", "Sisa Utang", "Skor Risiko", "Status Kepercayaan"]],
       body: data.customers.map((c) => [
         c.name,
         `Rp ${c.totalCredit.toLocaleString("id-ID")}`,

@@ -214,7 +214,7 @@ export function ScoreSimulator() {
                   Hasil Kalkulasi TrustBon:
                 </span>
                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${badgeStyle}`}>
-                  {status}
+                  {category.split(' ')[0]}
                 </span>
               </div>
 

@@ -42,7 +42,7 @@ export function FeaturesSection({ onExploreScore }) {
             Fitur Pintar yang Menjaga Arus Kas Usaha Tetap Sehat
           </h2>
           <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-            Kombinasi skoring rule-based, AI-powered insight, otomatisasi pesan WhatsApp ramah, dan kontrol persetujuan Owner untuk mengeliminasi risiko piutang macet.
+                Kombinasi skoring rule-based, AI-powered insight, otomatisasi pesan WhatsApp ramah, dan kontrol persetujuan Pemilik untuk mengeliminasi risiko piutang macet.
           </p>
         </div>
 
@@ -63,7 +63,7 @@ export function FeaturesSection({ onExploreScore }) {
               </h3>
 
               <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-5">
-                Algoritma rule-based TrustBon mengevaluasi setiap pelunasan, frekuensi transaksi, dan riwayat jatuh tempo pelanggan untuk menghasilkan nilai <strong>riskScore (0–100)</strong> dan kategori status kepercayaan.
+                Algoritma rule-based TrustBon mengevaluasi setiap pelunasan, frekuensi transaksi, dan riwayat jatuh tempo pelanggan untuk menghasilkan nilai <strong>Skor Risiko (0–100)</strong> dan kategori status kepercayaan.
               </p>
 
               {/* Status Visual Badges according to prompt rules: Hijau (stable), Kuning (recovering), Merah (at_risk) */}
@@ -71,7 +71,7 @@ export function FeaturesSection({ onExploreScore }) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>
-                    <span className="font-semibold text-gray-800 dark:text-gray-200">Stable (Skor 70-100)</span>
+                    <span className="font-semibold text-gray-800 dark:text-gray-200">Aman (Skor 70-100)</span>
                   </div>
                   <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25">
                     Aman / Layak Kasbon
@@ -81,7 +81,7 @@ export function FeaturesSection({ onExploreScore }) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-500 dark:bg-amber-400"></span>
-                    <span className="font-semibold text-gray-800 dark:text-gray-200">Recovering (Skor 40-69)</span>
+                    <span className="font-semibold text-gray-800 dark:text-gray-200">Waspada (Skor 40-69)</span>
                   </div>
                   <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/25">
                     Waspada / Limit Ketat
@@ -91,7 +91,7 @@ export function FeaturesSection({ onExploreScore }) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-rose-500 dark:bg-rose-400"></span>
-                    <span className="font-semibold text-gray-800 dark:text-gray-200">At Risk (Skor 0-39)</span>
+                    <span className="font-semibold text-gray-800 dark:text-gray-200">Bahaya (Skor 0-39)</span>
                   </div>
                   <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/25">
                     Bahaya / Stop Kredit
@@ -176,10 +176,10 @@ export function FeaturesSection({ onExploreScore }) {
               <div className="space-y-2.5 p-3.5 rounded-xl bg-gradient-to-br from-violet-500/10 to-purple-600/5 dark:from-violet-500/10 dark:to-violet-500/5 border border-violet-200/80 dark:border-violet-500/20 mb-6 text-xs">
                 <div className="flex justify-between items-center">
                   <span className="text-[11px] font-semibold text-violet-950 dark:text-violet-200">
-                    Persetujuan Owner Dibutuhkan
+                    Persetujuan Pemilik Dibutuhkan
                   </span>
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300 border border-amber-300 dark:border-amber-500/25">
-                    2 Draft Transaksi
+                    2 Draf Transaksi
                   </span>
                 </div>
 

@@ -80,7 +80,24 @@ description = (
     "usaha lokal guna mendukung keberlanjutan ekonomi komunitas."
 )
 
+link_style = ParagraphStyle(
+    "Link",
+    parent=styles["Normal"],
+    fontSize=10,
+    leading=14,
+    alignment=TA_CENTER,
+    spaceBefore=12,
+    textColor="#6D28D9",
+    fontName="Helvetica",
+)
+
 story.append(Paragraph(description, body_style))
+story.append(Spacer(1, 12))
+story.append(Paragraph(
+    'Uji coba: <link href="https://trustbon-tcc.vercel.app">https://trustbon-tcc.vercel.app</link>',
+    link_style
+))
+
 
 doc.build(story)
 

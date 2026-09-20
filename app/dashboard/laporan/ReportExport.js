@@ -50,8 +50,8 @@ export async function exportToExcel(data) {
     "Kasbon Periode",
     "Dibayar Periode",
     "Sisa Utang",
-    "Risk Score",
-    "Trust Status",
+    "Skor Risiko",
+    "Status Kepercayaan",
   ];
   const rows = data.customers.map((c) => [
     c.name,

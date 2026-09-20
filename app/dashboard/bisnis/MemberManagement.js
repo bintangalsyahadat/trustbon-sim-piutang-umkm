@@ -23,7 +23,7 @@ const dangerButtonClass =
 
 const ROLE_BADGES = {
   owner: {
-    label: "Owner",
+    label: "Pemilik",
     icon: ShieldCheck,
     className:
       "bg-violet-100 text-violet-800 border-violet-300 dark:bg-violet-500/15 dark:text-violet-300 dark:border-violet-500/25",
