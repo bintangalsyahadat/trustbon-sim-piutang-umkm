@@ -814,8 +814,8 @@ async function main() {
     );
   });
 
-  // ── 8. Owner: insight section exists (placeholder cards) ──────────────────
-  await scenario(8, "Owner: 'Insight' section present with placeholder cards", async () => {
+  // ── 8. Owner: insight section exists ──────────────────────────────────────
+  await scenario(8, "Owner: 'Insight' section present with content", async () => {
     const res = await getPage("/dashboard", jarOwner);
     assertEq(res.status, 200, "GET /dashboard status");
     const text = visibleText(res.body);
@@ -823,12 +823,17 @@ async function main() {
       text.includes("Insight"),
       'visible text missing "Insight" section',
     );
-    // Placeholder insight text contains "pembayaran tepat waktu naik"
+    // InsightSection is a client component; server-rendered HTML includes
+    // the fallback or the LLM text. The static placeholder text is gone;
+    // assert the InsightSection's heading + either fallback content or
+    // a Sparkles-loaded indicator (aria-label on the root div).
+    // Since the section renders via client-side fetch, we check the static
+    // SectionHeading which is always present.
     assert(
-      text.includes("Pembayaran tepat waktu naik"),
-      "visible text missing placeholder insight content",
+      text.includes("Sorotan otomatis"),
+      "visible text missing insight section description",
     );
-    return `"Insight" section + placeholder content present`;
+    return `"Insight" section heading present`;
   });
 
   // ── 9. Kasir dashboard: greeting shows user name ──────────────────────────

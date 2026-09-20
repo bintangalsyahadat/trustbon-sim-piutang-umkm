@@ -9,7 +9,7 @@ import {
 import { GuardedLink } from "@/components/GuardedLink";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { SectionHeading } from "@/components/dashboard/SectionHeading";
-import { InsightCard } from "@/components/dashboard/InsightCard";
+import { InsightSection } from "@/components/dashboard/InsightSection";
 import {
   RiskScoreBadge,
   TrustStatusBadge,
@@ -25,21 +25,6 @@ const TABLE_HEAD_CELL_CLASSES =
 
 const TABLE_BODY_CELL_CLASSES = "px-5 sm:px-6 py-3.5";
 
-/**
- * Placeholder insight cards — real insight logic will be wired separately
- * via the LLM narrative insight feature (4.9 — Ringkasan Naratif Insight
- * Dashboard). Do NOT replace these with computed data.
- */
-const PLACEHOLDER_INSIGHTS = [
-  {
-    id: "insight-on-time",
-    text: "Pembayaran tepat waktu naik menjadi 82,4% minggu ini — mayoritas pelanggan melunasi kasbon sebelum jatuh tempo.",
-  },
-  {
-    id: "insight-overdue",
-    text: "3 pelanggan sudah melewati jatuh tempo lebih dari 7 hari; pertimbangkan mengirim pengingat WhatsApp hari ini.",
-  },
-];
 
 /**
  * Owner home: business-level health — receivables metrics, narrative
@@ -101,17 +86,13 @@ export async function OwnerDashboard({ member }) {
         />
       </div>
 
-      {/* Narrative insights (placeholder — real logic via feature 4.9) */}
+      {/* Narrative insights — LLM-generated via /api/insight */}
       <section className="mt-10">
         <SectionHeading
           title="Insight"
           description="Sorotan otomatis dari aktivitas piutang Anda."
         />
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {PLACEHOLDER_INSIGHTS.map((insight) => (
-            <InsightCard key={insight.id}>{insight.text}</InsightCard>
-          ))}
-        </div>
+        <InsightSection />
       </section>
 
       {/* Customers needing attention */}
