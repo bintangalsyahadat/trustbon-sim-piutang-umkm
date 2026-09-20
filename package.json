@@ -13,6 +13,7 @@
     "verify:approval": "node scripts/verify-approval.mjs",
     "verify:risk-score": "node scripts/verify-risk-score.mjs",
     "verify:authz": "node scripts/verify-authz.mjs",
+    "seed:master": "node scripts/seed-master-data.mjs",
     "verify:dashboard": "node scripts/verify-dashboard.mjs",
     "postinstall": "prisma generate || exit 0"
   },

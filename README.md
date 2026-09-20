@@ -2,8 +2,22 @@
 
 Sistem manajemen piutang kasbon untuk usaha UMKM Indonesia. Membantu pemilik usaha dan kasir mencatat transaksi kredit, melacak pembayaran, mengelola risiko piutang, serta mengirim pengingat otomatis ke pelanggan melalui WhatsApp.
 
+## Akses Demo
+
+| | |
+|---|---|
+| **URL** | https://trustbon-tcc.vercel.app |
+| **Email** | `demowner@gmail.com` |
+| **Password** | `12345678` |
+| **Role** | Owner |
+
+Data demo sudah termasuk: 8 pelanggan, 18 transaksi, dan 9 riwayat pembayaran dengan berbagai skenario.
+
+---
+
 ## Daftar Isi
 
+- [Akses Demo](#akses-demo)
 - [Fitur Utama](#fitur-utama)
 - [Tech Stack](#tech-stack)
 - [Panduan Setup](#panduan-setup)
