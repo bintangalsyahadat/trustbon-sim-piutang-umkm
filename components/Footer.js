@@ -41,7 +41,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="pt-6 pb-6 border-b border-gray-100 dark:border-white/10 flex flex-col items-center gap-3">
+        <a href="https://tcc.triplec.or.id/competitions/vibe-code.php" target="_blank" rel="noopener noreferrer" className="pt-6 pb-6 border-b border-gray-100 dark:border-white/10 flex flex-col items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer">
           <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
             Partisipasi Vibe Code TCC 2026
           </p>
@@ -50,7 +50,7 @@ export function Footer() {
             <img src="/logo-tcc.png" alt="TCC" className="h-9 object-contain" />
             <img src="/logo-jack.png" alt="Jack 2026" className="h-9 object-contain" />
           </div>
-        </div>
+        </a>
 
         {/* Bottom copyright */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400 text-center sm:text-left">

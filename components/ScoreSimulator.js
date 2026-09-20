@@ -76,7 +76,7 @@ export function ScoreSimulator() {
   };
 
   return (
-    <section id="simulasi" className="py-14 md:py-20 relative">
+    <section id="simulasi" className="scroll-mt-24 py-14 md:py-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-100 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20 text-violet-700 dark:text-violet-300 text-xs font-semibold">

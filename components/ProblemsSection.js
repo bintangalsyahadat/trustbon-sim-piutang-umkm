@@ -38,7 +38,7 @@ export function ProblemsSection() {
   ];
 
   return (
-    <section id="masalah" className="py-14 md:py-20 relative">
+    <section id="masalah" className="scroll-mt-24 py-14 md:py-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <ScrollReveal>
         {/* Section Header */}

@@ -7,6 +7,7 @@ import { ImpactSection } from "../components/ImpactSection";
 import { ScoreSimulator } from "../components/ScoreSimulator";
 import { HowItWorks } from "../components/HowItWorks";
 import { Footer } from "../components/Footer";
+import { ScrollToTop } from "../components/ScrollToTop";
 
 export default async function Home() {
   // Public landing page: anonymous visitors get the normal marketing CTAs,
@@ -43,6 +44,9 @@ export default async function Home() {
 
       {/* 5. Footer */}
       <Footer />
+
+      {/* Scroll to Top */}
+      <ScrollToTop />
     </div>
   );
 }
