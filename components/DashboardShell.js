@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   Receipt,
   Wallet,
-  History,
   Users,
   ClipboardCheck,
   UserCog,
@@ -47,17 +46,16 @@ const FOCUS_RING =
 
 const CASHIER_NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/pelanggan", label: "Pelanggan", icon: Users },
   { href: "/dashboard/transaksi", label: "Transaksi", icon: Receipt },
   { href: "/dashboard/pembayaran", label: "Pembayaran", icon: Wallet },
-  { href: "/dashboard/pelanggan", label: "Pelanggan", icon: Users },
-  { href: "/dashboard/riwayat-pelanggan", label: "Riwayat Pelanggan", icon: History },
 ];
 
 const OWNER_NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/pelanggan", label: "Pelanggan", icon: Users },
   { href: "/dashboard/transaksi", label: "Transaksi", icon: Receipt },
   { href: "/dashboard/pembayaran", label: "Pembayaran", icon: Wallet },
-  { href: "/dashboard/pelanggan", label: "Pelanggan", icon: Users },
   { href: "/dashboard/approval", label: "Approval", icon: ClipboardCheck },
   { href: "/dashboard/tim", label: "Tim", icon: UserCog },
   { href: "/dashboard/laporan", label: "Laporan", icon: BarChart3 },

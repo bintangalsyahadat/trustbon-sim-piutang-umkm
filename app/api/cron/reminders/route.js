@@ -1,4 +1,4 @@
-import { processReminders } from "@/lib/reminder";
+import { processReminders, recalculateAllRiskScores } from "@/lib/reminder";
 
 /**
  * Cron-triggered API route for daily WhatsApp reminders.
@@ -22,13 +22,21 @@ export async function GET(request) {
   }
 
   try {
-    const result = await processReminders();
+    const [reminderResult, riskResult] = await Promise.all([
+      processReminders(),
+      recalculateAllRiskScores(),
+    ]);
+
     console.log(
-      `[Cron Reminders] Processed: ${result.processed}, Sent: ${result.sent}, Failed: ${result.failed}`
+      `[Cron Reminders] Processed: ${reminderResult.processed}, Sent: ${reminderResult.sent}, Failed: ${reminderResult.failed}`
+    );
+    console.log(
+      `[Cron RiskScore] Recalculated: ${riskResult.recalculated}, Errors: ${riskResult.errors}`
     );
     return Response.json({
       ok: true,
-      ...result,
+      reminders: reminderResult,
+      riskScore: riskResult,
       timestamp: new Date().toISOString(),
     });
   } catch (err) {
