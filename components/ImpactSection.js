@@ -1,6 +1,7 @@
 "use client";
 
 import { Landmark, HandCoins, ShieldCheck } from "lucide-react";
+import { ScrollReveal } from "./ScrollReveal";
 
 const STATS = [
   {
@@ -25,10 +26,11 @@ const STATS = [
 
 export function ImpactSection() {
   return (
-    <section id="dampak" className="py-20 relative">
+    <section id="dampak" className="py-14 md:py-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <ScrollReveal>
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
+        <div className="text-center max-w-3xl mx-auto space-y-3 mb-10 md:mb-14">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-100 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20 text-violet-700 dark:text-violet-300 text-xs font-semibold">
             <Landmark className="w-3.5 h-3.5" />
             <span>Dampak untuk Komunitas</span>
@@ -66,6 +68,7 @@ export function ImpactSection() {
             );
           })}
         </div>
+        </ScrollReveal>
       </div>
     </section>
   );

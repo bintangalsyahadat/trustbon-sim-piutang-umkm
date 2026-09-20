@@ -14,6 +14,7 @@ import {
   Zap,
   ArrowRight
 } from "lucide-react";
+import { ScrollReveal } from "./ScrollReveal";
 
 export function FeaturesSection({ onExploreScore }) {
   // The landing page is now a server component, so it cannot pass this
@@ -30,10 +31,11 @@ export function FeaturesSection({ onExploreScore }) {
   };
 
   return (
-    <section id="fitur" className="py-20 relative">
+    <section id="fitur" className="py-14 md:py-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <ScrollReveal>
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
+        <div className="text-center max-w-3xl mx-auto space-y-3 mb-10 md:mb-16">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-100 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20 text-violet-700 dark:text-violet-300 text-xs font-semibold">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Solusi Unggulan TrustBon</span>
@@ -42,7 +44,7 @@ export function FeaturesSection({ onExploreScore }) {
             Fitur Pintar yang Menjaga Arus Kas Usaha Tetap Sehat
           </h2>
           <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-                Kombinasi skoring rule-based, AI-powered insight, otomatisasi pesan WhatsApp ramah, dan kontrol persetujuan Pemilik untuk mengeliminasi risiko piutang macet.
+                Kombinasi skoring otomatis, AI-powered insight, pengingat WhatsApp, dan kontrol persetujuan Pemilik.
           </p>
         </div>
 
@@ -63,11 +65,10 @@ export function FeaturesSection({ onExploreScore }) {
               </h3>
 
               <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-5">
-                Algoritma rule-based TrustBon mengevaluasi setiap pelunasan, frekuensi transaksi, dan riwayat jatuh tempo pelanggan untuk menghasilkan nilai <strong>Skor Risiko (0–100)</strong> dan kategori status kepercayaan.
+                Skoring otomatis berdasarkan riwayat bayar dan frekuensi transaksi pelanggan.
               </p>
 
-              {/* Status Visual Badges according to prompt rules: Hijau (stable), Kuning (recovering), Merah (at_risk) */}
-              <div className="space-y-2 p-3.5 rounded-xl bg-violet-50/50 dark:bg-violet-500/10 border border-violet-100 dark:border-violet-500/20 mb-6 text-xs">
+              <div className="hidden lg:block space-y-2 p-3.5 rounded-xl bg-violet-50/50 dark:bg-violet-500/10 border border-violet-100 dark:border-violet-500/20 mb-6 text-xs">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>
@@ -127,11 +128,10 @@ export function FeaturesSection({ onExploreScore }) {
               </h3>
 
               <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-5">
-                Tak perlu lagi sungkan atau canggung saat menagih. Pesan pengingat diformat sopan, ramah, dan otomatis dikirimkan ke WhatsApp pelanggan sesuai jadwal jatuh tempo.
+                Pesan pengingat sopan otomatis dikirim ke WhatsApp pelanggan sesuai jadwal jatuh tempo.
               </p>
 
-              {/* Chat Simulation Preview */}
-              <div className="space-y-2.5 p-3.5 rounded-xl bg-violet-50/50 dark:bg-violet-500/10 border border-violet-100 dark:border-violet-500/20 mb-6 text-xs">
+              <div className="hidden lg:block space-y-2.5 p-3.5 rounded-xl bg-violet-50/50 dark:bg-violet-500/10 border border-violet-100 dark:border-violet-500/20 mb-6 text-xs">
                 <div className="p-2.5 rounded-lg bg-white dark:bg-white/5 border border-emerald-200 dark:border-emerald-500/25 shadow-xs">
                   <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 mb-1 flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
@@ -169,11 +169,10 @@ export function FeaturesSection({ onExploreScore }) {
               </h3>
 
               <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-5">
-                Pantau seluruh indikator piutang toko Anda secara real-time. Ketahui rasio kasbon lancar vs macet, serta kelola antrean persetujuan transaksi yang melebihi limit kredit.
+                Pantau indikator piutang real-time: rasio lancar vs macet, dan antrean persetujuan kasbon.
               </p>
 
-              {/* Insight KPI Preview Card in brand violet accent */}
-              <div className="space-y-2.5 p-3.5 rounded-xl bg-gradient-to-br from-violet-500/10 to-purple-600/5 dark:from-violet-500/10 dark:to-violet-500/5 border border-violet-200/80 dark:border-violet-500/20 mb-6 text-xs">
+              <div className="hidden lg:block space-y-2.5 p-3.5 rounded-xl bg-gradient-to-br from-violet-500/10 to-purple-600/5 dark:from-violet-500/10 dark:to-violet-500/5 border border-violet-200/80 dark:border-violet-500/20 mb-6 text-xs">
                 <div className="flex justify-between items-center">
                   <span className="text-[11px] font-semibold text-violet-950 dark:text-violet-200">
                     Persetujuan Pemilik Dibutuhkan
@@ -201,6 +200,7 @@ export function FeaturesSection({ onExploreScore }) {
             </div>
           </div>
         </div>
+        </ScrollReveal>
       </div>
     </section>
   );

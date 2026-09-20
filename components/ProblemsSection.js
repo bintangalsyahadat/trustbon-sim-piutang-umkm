@@ -1,6 +1,7 @@
 "use client";
 
 import { EyeOff, UserX, AlertOctagon, ArrowUpRight, HelpCircle, Users } from "lucide-react";
+import { ScrollReveal } from "./ScrollReveal";
 
 export function ProblemsSection() {
   const problems = [
@@ -10,10 +11,9 @@ export function ProblemsSection() {
       badge: "Buta Karakter",
       badgeColor: "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/25",
       title: "Hanya Catat Angka, Buta Riwayat Bayar Pelanggan",
-      description:
-        "Buku kasbon biasa seperti BukuWarung atau BukuKas hanya mencatat 'siapa berutang berapa'. Anda tidak tahu apakah pelanggan tersebut punya riwayat selalu nunggak berbulan-bulan atau punya itikad baik sebelum menyetujui kasbon berikutnya.",
-      impact: "Modal kerja tertahan karena memberi kasbon baru pada pelanggan yang berisiko tinggi macet.",
-      communityImpact: "UMKM yang gulung tikar karena piutang macet = lapangan kerja hilang di komunitas lokal.",
+      description: "Buku kasbon biasa hanya mencatat siapa berutang berapa. Anda tidak tahu riwayat bayar pelanggan sebelum menyetujui kasbon baru.",
+      impact: "Modal kerja tertahan karena memberi kasbon pada pelanggan berisiko macet.",
+      communityImpact: "UMKM yang gulung tikar = lapangan kerja hilang di komunitas lokal.",
     },
     {
       id: "problem-awkward-collection",
@@ -21,10 +21,9 @@ export function ProblemsSection() {
       badge: "Sungkan Menagih",
       badgeColor: "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/25",
       title: "Rasa Sungkan Membuat Penagihan Sering Terlambat",
-      description:
-        "Menagih kasbon ke tetangga, teman, atau langganan sering menimbulkan rasa canggung. Karena enggan menagih langsung secara tatap muka, jatuh tempo terlewat hingga berbulan-bulan dan piutang berakhir jadi beban kerugian.",
-      impact: "Arus kas tersendat hanya karena penagihan manual terasa membebani mental pemilik warung.",
-      communityImpact: "Arus kas tersendat memperlambat roda ekonomi, menunda gaji karyawan, dan memperlambat belanja dari supplier lokal.",
+      description: "Menagih kasbon ke tetangga atau langganan sering terasa canggung. Karena enggan menagih, jatuh tempo terlewat hingga piutang jadi beban kerugian.",
+      impact: "Arus kas tersendat karena penagihan manual.",
+      communityImpact: "Arus kas tersendat memperlambat roda ekonomi lokal.",
     },
     {
       id: "problem-cashier-bypass",
@@ -32,18 +31,18 @@ export function ProblemsSection() {
       badge: "Kasir Tanpa Limit",
       badgeColor: "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/25",
       title: "Kasir Meloloskan Kasbon Tanpa Kontrol Pemilik Toko",
-      description:
-        "Saat kasir jaga toko, pelanggan sering meminta izin kasbon tambahan. Kasir yang sungkan atau tidak tahu aturan batas kredit sering meloloskannya begitu saja tanpa konfirmasi langsung kepada Owner.",
-      impact: "Piutang melonjak melebihi batas toleransi tanpa persetujuan dan verifikasi pemilik UMKM.",
-      communityImpact: "Kontrol yang buruk bisa mengancam kelangsungan usaha kecil yang menjadi tumpuan hidup banyak keluarga.",
+      description: "Kasir sering meloloskan kasbon tambahan tanpa konfirmasi pemilik. Piutang melonjak melebihi batas tanpa verifikasi.",
+      impact: "Piutang melonjak tanpa persetujuan pemilik UMKM.",
+      communityImpact: "Kontrol buruk mengancam kelangsungan usaha kecil.",
     },
   ];
 
   return (
-    <section id="masalah" className="py-20 relative">
+    <section id="masalah" className="py-14 md:py-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <ScrollReveal>
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
+        <div className="text-center max-w-3xl mx-auto space-y-3 mb-10 md:mb-14">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-100 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20 text-violet-700 dark:text-violet-300 text-xs font-semibold">
             <HelpCircle className="w-3.5 h-3.5" />
             <span>Masalah Nyata di Lapangan</span>
@@ -57,14 +56,14 @@ export function ProblemsSection() {
         </div>
 
         {/* 3 Column Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-8">
           {problems.map((item, idx) => {
             const Icon = item.icon;
             return (
               <div
                 key={item.id}
                 id={item.id}
-                className="glass-card rounded-2xl p-6 flex flex-col justify-between transition-all duration-300 hover:translate-y-[-2px] hover:border-violet-300 dark:hover:border-purple-700 shadow-sm"
+              className="glass-card rounded-2xl p-5 md:p-6 flex flex-col justify-between transition-all duration-300 hover:translate-y-[-2px] hover:border-violet-300 dark:hover:border-purple-700 shadow-sm"
               >
                 <div>
                   {/* Top Bar with Semantic Badge */}
@@ -97,7 +96,7 @@ export function ProblemsSection() {
                 </div>
 
                 {item.communityImpact ? (
-                  <div className="mt-2 flex items-start gap-2 text-[11px] text-violet-700 dark:text-violet-300 bg-violet-50/50 dark:bg-violet-500/10 p-2 rounded-lg border border-violet-100 dark:border-violet-500/20">
+                  <div className="hidden md:flex mt-2 items-start gap-2 text-[11px] text-violet-700 dark:text-violet-300 bg-violet-50/50 dark:bg-violet-500/10 p-2 rounded-lg border border-violet-100 dark:border-violet-500/20">
                     <Users className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                     <span>{item.communityImpact}</span>
                   </div>
@@ -106,6 +105,7 @@ export function ProblemsSection() {
             );
           })}
         </div>
+        </ScrollReveal>
       </div>
     </section>
   );

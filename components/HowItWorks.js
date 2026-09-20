@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Building2, UserPlus, FileSpreadsheet, ArrowRight, ShieldCheck, Check } from "lucide-react";
+import { ScrollReveal } from "./ScrollReveal";
 
 export function HowItWorks({ isAuthenticated = false }) {
   const router = useRouter();
@@ -36,10 +37,11 @@ export function HowItWorks({ isAuthenticated = false }) {
   ];
 
   return (
-    <section id="cara-kerja" className="py-20 relative">
+    <section id="cara-kerja" className="py-14 md:py-20 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <ScrollReveal>
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
+        <div className="text-center max-w-3xl mx-auto space-y-3 mb-10 md:mb-16">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-100 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20 text-violet-700 dark:text-violet-300 text-xs font-semibold">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Alur Praktis 3 Langkah</span>
@@ -53,14 +55,14 @@ export function HowItWorks({ isAuthenticated = false }) {
         </div>
 
         {/* 3 Step Process Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-8 relative">
           {steps.map((item, idx) => {
             const Icon = item.icon;
             return (
               <div
                 key={item.step}
                 id={`step-${item.step}`}
-                className="glass-card rounded-2xl p-7 flex flex-col justify-between relative transition-all duration-300 hover:translate-y-[-2px] hover:border-violet-300 dark:hover:border-purple-700 shadow-md"
+                className="glass-card rounded-2xl p-5 md:p-7 flex flex-col justify-between relative transition-all duration-300 hover:translate-y-[-2px] hover:border-violet-300 dark:hover:border-purple-700 shadow-md"
               >
                 <div>
                   {/* Step Number badge and Icon */}
@@ -103,7 +105,7 @@ export function HowItWorks({ isAuthenticated = false }) {
         </div>
 
         {/* Bottom CTA Banner with Glassmorphism */}
-        <div className="mt-14 glass-panel rounded-2xl p-8 text-center sm:flex sm:items-center sm:justify-between max-w-5xl mx-auto border border-violet-200/80 dark:border-white/10 shadow-lg">
+        <div className="mt-10 md:mt-14 glass-panel rounded-2xl p-6 md:p-8 text-center sm:flex sm:items-center sm:justify-between max-w-5xl mx-auto border border-violet-200/80 dark:border-white/10 shadow-lg">
           <div className="text-left mb-6 sm:mb-0 space-y-1">
             <h4 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
               Siap Mencegah Piutang Macet di Usaha Anda?
@@ -123,6 +125,7 @@ export function HowItWorks({ isAuthenticated = false }) {
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
+        </ScrollReveal>
       </div>
     </section>
   );

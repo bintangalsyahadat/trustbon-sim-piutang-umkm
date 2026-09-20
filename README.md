@@ -96,7 +96,7 @@ Sistem manajemen piutang kasbon untuk usaha UMKM Indonesia. Membantu pemilik usa
 | Grafik | Recharts |
 | Export | xlsx (Excel), jsPDF + jspdf-autotable (PDF) |
 | Tema | next-themes (dark/light mode) |
-| Package Manager | Bun |
+| Package Manager | npm |
 
 ---
 
@@ -105,7 +105,7 @@ Sistem manajemen piutang kasbon untuk usaha UMKM Indonesia. Membantu pemilik usa
 ### Prasyarat
 
 - Node.js 22+
-- Bun (package manager)
+- npm
 - Akun Neon PostgreSQL (atau PostgreSQL lokal)
 - API key Google Gemini (opsional, untuk fitur pengingat & insight)
 - Token Fonnte (opsional, untuk pengiriman WhatsApp)
@@ -118,7 +118,7 @@ git clone <url-repository>
 cd trustbon-sim-piutang-umkm
 
 # 2. Install dependencies
-bun install
+npm install
 
 # 3. Salin file environment
 cp .env.example .env
@@ -150,11 +150,11 @@ CRON_SECRET="your-cron-secret"
 
 ```bash
 # Development
-bun run dev
+npm run dev
 
 # Production
-bun run build
-bun run start
+npm run build
+npm run start
 ```
 
 Buka [http://localhost:3000](http://localhost:3000).
@@ -163,21 +163,21 @@ Buka [http://localhost:3000](http://localhost:3000).
 
 ```bash
 # Lint — pastikan bersih dari error
-bun run lint
+npm run lint
 
 # Build
-bun run build
+npm run build
 
 # Verifikasi autentikasi & otorisasi (E2E)
-bun run verify:authz
+npm run verify:authz
 
 # Verifikasi fitur lain
-bun run verify:payments
-bun run verify:approval
-bun run verify:risk-score
-bun run verify:dashboard
-bun run verify:transaction-cancel
-bun run verify:customer-delete
+npm run verify:payments
+npm run verify:approval
+npm run verify:risk-score
+npm run verify:dashboard
+npm run verify:transaction-cancel
+npm run verify:customer-delete
 ```
 
 ---
