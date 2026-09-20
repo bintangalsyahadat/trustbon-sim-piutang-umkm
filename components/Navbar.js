@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
-  ShieldCheck, 
   Menu, 
   X, 
   ArrowRight
@@ -44,8 +43,8 @@ export function Navbar({ isAuthenticated = false }) {
           id="nav-logo"
           className="flex items-center gap-2.5 group focus:outline-none"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-violet-500/25 dark:shadow-black/30 group-hover:scale-105 transition-transform">
-            <ShieldCheck className="w-5 h-5 text-violet-100" />
+          <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md shadow-violet-500/25 dark:shadow-black/30 group-hover:scale-105 transition-transform">
+            <img src="/icon.png" alt="TrustBon" className="w-full h-full object-cover" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">

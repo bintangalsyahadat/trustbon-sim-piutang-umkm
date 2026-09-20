@@ -15,6 +15,10 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "TrustBon — Sistem Manajemen Piutang UMKM & Skoring Risiko Kredit",
   description: "Aplikasi pencatatan kasbon dan piutang UMKM pintar dengan skoring risiko kredit otomatis, reminder WhatsApp, dan sistem multi-tenant Owner-Kasir.",
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+  },
   openGraph: {
     title: "TrustBon — Sistem Manajemen Piutang UMKM & Skoring Risiko Kredit",
     description: "Bukan sekadar buku kasbon. TrustBon memberikan skor risiko kredit pelanggan dan proteksi limit kredit untuk mencegah piutang macet.",

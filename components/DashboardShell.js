@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, useSyncExternalStore, useTransition } from
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import {
-  ShieldCheck,
   LayoutDashboard,
   Receipt,
   Wallet,
@@ -21,6 +20,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { NavigationProgress } from "@/components/NavigationProgress";
 import { GuardedLink } from "@/components/GuardedLink";
 import { NavigationGuardProvider } from "@/components/NavigationGuard";
 import { logoutAction } from "@/app/actions/auth";
@@ -85,8 +85,8 @@ function Brand() {
       href="/dashboard"
       className={`flex items-center gap-2.5 rounded-xl px-1 py-1 shrink-0 ${FOCUS_RING}`}
     >
-      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-violet-500/25 dark:shadow-black/30">
-        <ShieldCheck className="w-4.5 h-4.5 text-violet-100" />
+      <div className="w-9 h-9 rounded-xl overflow-hidden shadow-md shadow-violet-500/25 dark:shadow-black/30">
+        <img src="/icon.png" alt="TrustBon" className="w-full h-full object-cover" />
       </div>
       <div className="flex items-center gap-1.5">
         <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-violet-600 to-violet-500 dark:from-violet-300 dark:to-violet-400 bg-clip-text text-transparent">
@@ -356,9 +356,6 @@ function TopBar({ pathname, userName, isOwner, pendingCount, unreadCount }) {
     <header className="sticky top-0 z-30 h-16 bg-white/65 dark:bg-[#1a1625]/60 backdrop-blur-xl border-b border-white/20 dark:border-white/10 flex items-center justify-between gap-3 px-5 sm:px-8 lg:px-12 xl:px-16">
       <div className="flex items-center gap-2 min-w-0">
         <MobileNav key={pathname} isOwner={isOwner} />
-        <div className="lg:hidden min-w-0">
-          <Brand />
-        </div>
       </div>
 
       <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
@@ -386,6 +383,7 @@ export function DashboardShell({
 
   return (
     <NavigationGuardProvider>
+      <NavigationProgress />
       <div className="min-h-screen selection:bg-violet-500 selection:text-white">
         <div className="mx-auto flex min-h-screen w-full max-w-[1600px]">
           <Sidebar isOwner={isOwner} />
