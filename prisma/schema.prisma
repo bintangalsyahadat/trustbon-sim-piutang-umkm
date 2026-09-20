@@ -102,6 +102,7 @@ model Customer {
   creditLimit Decimal
   riskScore   Int         @default(50)
   trustStatus TrustStatus @default(unrated)
+  autoReminder Boolean   @default(true)
   createdAt   DateTime    @default(now())
 
   transactions Transaction[]

@@ -20,6 +20,7 @@ import {
   TrustStatusBadge,
 } from "@/components/dashboard/StatusBadge";
 import { EditCreditLimitButton } from "./EditCreditLimitDialog";
+import { AutoReminderToggle } from "./AutoReminderToggle";
 
 export const metadata = { title: "Detail Pelanggan — TrustBon" };
 
@@ -93,6 +94,7 @@ export default async function CustomerDetailPage({ params }) {
       creditLimit: true,
       riskScore: true,
       trustStatus: true,
+      autoReminder: true,
     },
   });
   if (!customer) notFound();
@@ -267,6 +269,16 @@ export default async function CustomerDetailPage({ params }) {
           <p className={statHintClass}>Dapat diubah oleh Pemilik</p>
         </div>
       </section>
+
+      {/* Reminder settings (owner-only) */}
+      {isOwner ? (
+        <section className={sectionCardClass}>
+          <AutoReminderToggle
+            customerId={customer.id}
+            enabled={customer.autoReminder}
+          />
+        </section>
+      ) : null}
 
       {/* Debt summary (kept from the previous layout, below the headline cards) */}
       <section className="space-y-4">

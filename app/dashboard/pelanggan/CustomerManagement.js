@@ -2,8 +2,9 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Pencil, Plus, Search, Trash2, UserPlus, X } from "lucide-react";
+import { Loader2, Pencil, Plus, Search, Send, Trash2, UserPlus, X } from "lucide-react";
 import { deleteCustomer } from "@/app/actions/customers";
+import { triggerReminder } from "@/app/actions/reminders";
 import { AuthError, authInputClass } from "@/components/AuthUi";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { GuardedLink } from "@/components/GuardedLink";
@@ -53,6 +54,7 @@ export function CustomerManagement({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [reminderCustomerId, setReminderCustomerId] = useState(null);
   const [pending, startTransition] = useTransition();
 
   const isOwner = userRole === "owner";
@@ -75,6 +77,27 @@ export function CustomerManagement({
   function handleUpdated() {
     toast.success("Data pelanggan berhasil diperbarui.");
     router.refresh();
+  }
+
+  function handleSendReminder(customer) {
+    if (pending) return;
+    setReminderCustomerId(customer.id);
+    startTransition(async () => {
+      try {
+        const res = await triggerReminder({ customerId: customer.id });
+        if (res?.ok && res?.sent) {
+          toast.success(`Pengingat berhasil dikirim ke ${customer.name}.`);
+        } else if (res?.ok && !res?.sent) {
+          toast.error(`Pengingat gagal dikirim: ${res?.error ?? "unknown error"}.`);
+        } else {
+          toast.error(res?.error ?? "Gagal mengirim pengingat.");
+        }
+      } catch {
+        toast.error("Gagal mengirim pengingat. Silakan coba lagi.");
+      } finally {
+        setReminderCustomerId(null);
+      }
+    });
   }
 
   function handleDeleteConfirm() {
@@ -257,6 +280,21 @@ export function CustomerManagement({
                     </td>
                     <td className={`${TABLE_BODY_CELL_CLASSES} text-right`}>
                       <div className="flex items-center justify-end gap-1">
+                        {isOwner && customer.activeDebt > 0 ? (
+                          <button
+                            type="button"
+                            aria-label={`Kirim pengingat ke ${customer.name}`}
+                            disabled={reminderCustomerId === customer.id}
+                            onClick={() => handleSendReminder(customer)}
+                            className={`${iconButtonClass} text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10`}
+                          >
+                            {reminderCustomerId === customer.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Send className="w-4 h-4" />
+                            )}
+                          </button>
+                        ) : null}
                         {isOwner ? (
                           <>
                             <button
