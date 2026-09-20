@@ -24,6 +24,7 @@ import { NavigationProgress } from "@/components/NavigationProgress";
 import { GuardedLink } from "@/components/GuardedLink";
 import { NavigationGuardProvider } from "@/components/NavigationGuard";
 import { logoutAction } from "@/app/actions/auth";
+import { ChatWidget } from "@/components/dashboard/ChatWidget";
 
 const emptySubscribe = () => () => {};
 
@@ -399,6 +400,7 @@ export function DashboardShell({
           </div>
         </div>
       </div>
+      <ChatWidget />
     </NavigationGuardProvider>
   );
 }

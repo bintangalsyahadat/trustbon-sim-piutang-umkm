@@ -1,6 +1,5 @@
 "use client";
 
-import { ShieldCheck, Heart } from "lucide-react";
 
 export function Footer() {
   return (
@@ -9,8 +8,8 @@ export function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-gray-100 dark:border-white/10">
           {/* Brand Info */}
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-violet-500 flex items-center justify-center text-white shadow-sm shadow-violet-500/30 dark:shadow-black/20">
-              <ShieldCheck className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md shadow-violet-500/25 dark:shadow-black/30">
+              <img src="/icon.png" alt="TrustBon" className="w-full h-full object-cover" />
             </div>
             <div>
               <span className="text-lg font-bold text-gray-900 dark:text-white">
@@ -39,6 +38,17 @@ export function Footer() {
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300 text-[10px] font-semibold border border-emerald-300 dark:border-emerald-500/25">
               Sistem Aktif & Terlindungi
             </span>
+          </div>
+        </div>
+
+        <div className="pt-6 pb-6 border-b border-gray-100 dark:border-white/10 flex flex-col items-center gap-3">
+          <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+            Partisipasi Vibe Code TCC 2026
+          </p>
+          <div className="flex items-center gap-6">
+            <img src="/logo-triple-c.png" alt="UKM Triple-C" className="h-9 object-contain" />
+            <img src="/logo-tcc.png" alt="TCC" className="h-9 object-contain" />
+            <img src="/logo-jack.png" alt="Jack 2026" className="h-9 object-contain" />
           </div>
         </div>
 

@@ -14,7 +14,8 @@ import {
   Lock,
   UserCheck,
   Building2,
-  ChevronRight
+  ChevronRight,
+  Users
 } from "lucide-react";
 
 export function Hero({ isAuthenticated = false }) {
@@ -54,6 +55,12 @@ export function Hero({ isAuthenticated = false }) {
                 Skor Kepercayaan Pelanggan (0–100)
               </strong>
               , mendeteksi risiko kredit macet lebih awal, dan memproteksi limit utang dengan persetujuan Owner.
+            </p>
+
+            <p className="text-sm text-violet-600 dark:text-violet-300 font-medium leading-relaxed">
+              UMKM menyumbang lebih dari 60% PDB Indonesia. TrustBon menjaga
+              keberlanjutan ekonomi lokal dengan melindungi modal kerja dan
+              membangun sistem kepercayaan antar pelaku usaha.
             </p>
 
             {/* CTA Buttons */}

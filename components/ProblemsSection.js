@@ -1,6 +1,6 @@
 "use client";
 
-import { EyeOff, UserX, AlertOctagon, ArrowUpRight, HelpCircle } from "lucide-react";
+import { EyeOff, UserX, AlertOctagon, ArrowUpRight, HelpCircle, Users } from "lucide-react";
 
 export function ProblemsSection() {
   const problems = [
@@ -13,6 +13,7 @@ export function ProblemsSection() {
       description:
         "Buku kasbon biasa seperti BukuWarung atau BukuKas hanya mencatat 'siapa berutang berapa'. Anda tidak tahu apakah pelanggan tersebut punya riwayat selalu nunggak berbulan-bulan atau punya itikad baik sebelum menyetujui kasbon berikutnya.",
       impact: "Modal kerja tertahan karena memberi kasbon baru pada pelanggan yang berisiko tinggi macet.",
+      communityImpact: "UMKM yang gulung tikar karena piutang macet = lapangan kerja hilang di komunitas lokal.",
     },
     {
       id: "problem-awkward-collection",
@@ -23,6 +24,7 @@ export function ProblemsSection() {
       description:
         "Menagih kasbon ke tetangga, teman, atau langganan sering menimbulkan rasa canggung. Karena enggan menagih langsung secara tatap muka, jatuh tempo terlewat hingga berbulan-bulan dan piutang berakhir jadi beban kerugian.",
       impact: "Arus kas tersendat hanya karena penagihan manual terasa membebani mental pemilik warung.",
+      communityImpact: "Arus kas tersendat memperlambat roda ekonomi, menunda gaji karyawan, dan memperlambat belanja dari supplier lokal.",
     },
     {
       id: "problem-cashier-bypass",
@@ -33,6 +35,7 @@ export function ProblemsSection() {
       description:
         "Saat kasir jaga toko, pelanggan sering meminta izin kasbon tambahan. Kasir yang sungkan atau tidak tahu aturan batas kredit sering meloloskannya begitu saja tanpa konfirmasi langsung kepada Owner.",
       impact: "Piutang melonjak melebihi batas toleransi tanpa persetujuan dan verifikasi pemilik UMKM.",
+      communityImpact: "Kontrol yang buruk bisa mengancam kelangsungan usaha kecil yang menjadi tumpuan hidup banyak keluarga.",
     },
   ];
 
@@ -92,6 +95,13 @@ export function ProblemsSection() {
                     <span>{item.impact}</span>
                   </div>
                 </div>
+
+                {item.communityImpact ? (
+                  <div className="mt-2 flex items-start gap-2 text-[11px] text-violet-700 dark:text-violet-300 bg-violet-50/50 dark:bg-violet-500/10 p-2 rounded-lg border border-violet-100 dark:border-violet-500/20">
+                    <Users className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                    <span>{item.communityImpact}</span>
+                  </div>
+                ) : null}
               </div>
             );
           })}

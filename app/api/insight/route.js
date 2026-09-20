@@ -5,6 +5,9 @@ import { generateDashboardInsight } from "@/lib/insight";
 
 export const dynamic = "force-dynamic";
 
+const insightCache = new Map(); // key: businessId, value: { insight, ts }
+const INSIGHT_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+
 /**
  * GET /api/insight — aggregated piutang data → Gemini → actionable insight.
  *
@@ -31,6 +34,12 @@ export async function GET() {
   }
 
   const businessId = user.businessId;
+
+  // --- cache check (avoids burning Gemini quota on every dashboard load) ---
+  const cached = insightCache.get(businessId);
+  if (cached && Date.now() - cached.ts < INSIGHT_CACHE_TTL) {
+    return NextResponse.json({ insight: cached.insight });
+  }
 
   // --- aggregate data ---
   const now = new Date();
@@ -100,6 +109,7 @@ export async function GET() {
       topPelangganBermasalah,
     });
 
+    insightCache.set(businessId, { insight, ts: Date.now() });
     return NextResponse.json({ insight });
   } catch (err) {
     // Graceful fallback when Gemini is unavailable (key not set, API down, etc.)

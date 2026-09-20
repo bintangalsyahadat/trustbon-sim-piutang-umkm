@@ -42,7 +42,7 @@ export function FeaturesSection({ onExploreScore }) {
             Fitur Pintar yang Menjaga Arus Kas Usaha Tetap Sehat
           </h2>
           <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-            Kombinasi skoring rule-based, otomatisasi pesan WhatsApp ramah, dan kontrol persetujuan Owner untuk mengeliminasi risiko piutang macet.
+            Kombinasi skoring rule-based, AI-powered insight, otomatisasi pesan WhatsApp ramah, dan kontrol persetujuan Owner untuk mengeliminasi risiko piutang macet.
           </p>
         </div>
 

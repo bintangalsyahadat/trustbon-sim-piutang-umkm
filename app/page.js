@@ -3,6 +3,7 @@ import { Navbar } from "../components/Navbar";
 import { Hero } from "../components/Hero";
 import { ProblemsSection } from "../components/ProblemsSection";
 import { FeaturesSection } from "../components/FeaturesSection";
+import { ImpactSection } from "../components/ImpactSection";
 import { ScoreSimulator } from "../components/ScoreSimulator";
 import { HowItWorks } from "../components/HowItWorks";
 import { Footer } from "../components/Footer";
@@ -29,6 +30,9 @@ export default async function Home() {
 
         {/* 3. Fitur Utama (3 Kolom Grid) */}
         <FeaturesSection />
+
+        {/* Dampak untuk Komunitas */}
+        <ImpactSection />
 
         {/* Interactive Rule-Based Score Simulator */}
         <ScoreSimulator />
